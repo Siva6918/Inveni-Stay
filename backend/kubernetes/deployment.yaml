@@ -1,0 +1,190 @@
+# =============================================================================
+# Inveni Stay — Kubernetes Manifests
+# Compatible with: Amazon EKS | EKS Distro | EKS Anywhere
+# =============================================================================
+#
+# Deploy:
+#   kubectl apply -f backend/kubernetes/deployment.yaml
+#
+# EKS:         aws eks update-kubeconfig --name inveni-stay-cluster
+# EKS Distro:  eksctl create cluster --name inveni-stay --version 1.30
+# EKS Anywhere: eksctl anywhere create cluster -f cluster.yaml
+#
+# These manifests run the Inveni Stay AI microservice on Kubernetes
+# for enterprise-scale self-hosted deployments.
+# =============================================================================
+
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: inveni-stay
+  labels:
+    app.kubernetes.io/name: inveni-stay
+    app.kubernetes.io/managed-by: "Inveni Stay Bharat Builds 2026"
+
+---
+# ConfigMap — non-secret environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inveni-stay-config
+  namespace: inveni-stay
+data:
+  NODE_ENV: "production"
+  PORT: "8080"
+  AWS_REGION: "ap-south-1"
+  LOG_LEVEL: "info"
+
+---
+# Secret — sensitive credentials (fill before deploy)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: inveni-stay-secrets
+  namespace: inveni-stay
+type: Opaque
+stringData:
+  TABLE_NAME: "InveniStayData"
+  OPENSEARCH_ENDPOINT: ""       # Set after sam deploy
+  RDS_CLUSTER_ARN: ""           # Set after sam deploy
+  DB_SECRET_ARN: ""             # Set after sam deploy
+  APP_RUNNER_PDF_URL: ""        # Set after App Runner deploy
+
+---
+# Deployment — AI Microservice
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inveni-stay-ai
+  namespace: inveni-stay
+  labels:
+    app: inveni-stay-ai
+    version: "1.0.0"
+    technology: "eks-fargate"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inveni-stay-ai
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: inveni-stay-ai
+    spec:
+      serviceAccountName: inveni-stay-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: ai-microservice
+          image: inveni-stay-ai:latest     # Replace with ECR URI after push
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: inveni-stay-config
+            - secretRef:
+                name: inveni-stay-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+---
+# Service — internal ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: inveni-stay-ai-svc
+  namespace: inveni-stay
+spec:
+  selector:
+    app: inveni-stay-ai
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+# Ingress — ALB Ingress (EKS) / Traefik (EKS Anywhere)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inveni-stay-ingress
+  namespace: inveni-stay
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: ""   # ACM cert ARN
+spec:
+  rules:
+    - host: api.invenistay.in
+      http:
+        paths:
+          - path: /api/ai
+            pathType: Prefix
+            backend:
+              service:
+                name: inveni-stay-ai-svc
+                port:
+                  number: 80
+
+---
+# ServiceAccount — for IAM Roles for Service Accounts (IRSA on EKS)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: inveni-stay-sa
+  namespace: inveni-stay
+  annotations:
+    eks.amazonaws.com/role-arn: ""   # Fill with IAM role ARN after deploy
+
+---
+# HorizontalPodAutoscaler — auto-scale on CPU
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: inveni-stay-ai-hpa
+  namespace: inveni-stay
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: inveni-stay-ai
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60

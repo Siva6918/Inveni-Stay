@@ -1,0 +1,62 @@
+# ============================================================
+# Inveni Stay — .gitignore
+# ============================================================
+
+# --- Environment & Secrets (NEVER commit these) ---
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+samconfig.toml        # contains AWS account IDs after sam deploy
+
+# --- AWS Credentials ---
+.aws/
+aws-exports.js
+aws-exports.ts
+
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Build Outputs ---
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# --- TypeScript Build Cache ---
+*.tsbuildinfo
+tsconfig.app.tsbuildinfo
+tsconfig.node.tsbuildinfo
+
+# --- SAM Build Artifacts ---
+.aws-sam/
+packaged.yaml
+packaged-template.yaml
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Java Build (Corretto PDF service) ---
+backend/java/target/
+backend/java/*.jar
+*.class
+
+# --- LocalStack Data ---
+.localstack/
+localstack-data/
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log

@@ -1,0 +1,1075 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Inveni Stay - Full-Stack Serverless Property Discovery Platform
+  Hackathon: WeMakeDevs x AWS - First Commit - Bharat Builds Tour 2026
+  Technologies: Lambda, API Gateway, DynamoDB, S3, Cognito, Cedar, CloudFront,
+  EventBridge, SNS, SQS, Step Functions, OpenSearch Serverless, Aurora Serverless v2,
+  Route 53, ECS, Fargate, App Runner, EC2, Amplify Hosting, Strands Agents SDK,
+  Firecracker (arm64 MicroVM), Corretto 21, Finch, LocalStack, EKS/EKS Distro/EKS Anywhere
+
+# ============================================================================
+# PARAMETERS — customize for each deployment environment
+# ============================================================================
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+    Description: Deployment environment
+
+  DomainName:
+    Type: String
+    Default: ''
+    Description: "Custom domain (e.g. invenistay.in). Leave blank to skip Route 53 record."
+
+  HostedZoneId:
+    Type: String
+    Default: ''
+    Description: "Route 53 Hosted Zone ID. Required if DomainName is set."
+
+  BastionKeyName:
+    Type: String
+    Default: ''
+    Description: "EC2 key pair name for Bastion SSH access. Leave blank to skip EC2 Bastion."
+
+  EcrImageUri:
+    Type: String
+    Default: 'public.ecr.aws/amazonlinux/amazonlinux:latest'
+    Description: "ECR image URI for App Runner AI microservice container."
+
+Conditions:
+  HasDomain: !Not [!Equals [!Ref DomainName, '']]
+  HasBastionKey: !Not [!Equals [!Ref BastionKeyName, '']]
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 256
+    Runtime: nodejs20.x
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref InveniStayTable
+        ALLOWED_ORIGIN: '*'
+        ENVIRONMENT: !Ref Environment
+
+Resources:
+  # ============================================================================
+  # 1. AMAZON DYNAMODB (Single-Table Database)
+  # ============================================================================
+  InveniStayTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: InveniStayData
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+        - AttributeName: GSI2PK
+          AttributeType: S
+        - AttributeName: GSI2SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2PK
+              KeyType: HASH
+            - AttributeName: GSI2SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Project
+          Value: InveniStay
+        - Key: Tour
+          Value: BharatBuilds2026
+
+  # ============================================================================
+  # 2. AMAZON COGNITO (User Authentication & Directory)
+  # ============================================================================
+  InveniStayUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: InveniStay-User-Pool
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: false
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+
+  InveniStayUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: InveniStay-Web-App
+      UserPoolId: !Ref InveniStayUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+
+  # ============================================================================
+  # 3. AMAZON API GATEWAY (HTTP API with CORS)
+  # ============================================================================
+  InveniStayApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Amz-Date
+        AllowOrigins:
+          - '*'
+
+  # ============================================================================
+  # 4. AWS LAMBDA FUNCTIONS (Serverless Compute Layer)
+  # ============================================================================
+  PropertiesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/properties/
+      Description: Retrieve properties, rooms, and live room-level vacancies
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref InveniStayTable
+      Events:
+        GetProperties:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/properties
+            Method: GET
+        GetPropertyDetail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/properties/{propertyId}
+            Method: GET
+        GetPropertyRooms:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/properties/{propertyId}/rooms
+            Method: GET
+        GetRoomAvailability:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/rooms/{roomId}/availability
+            Method: GET
+
+  ReservationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/reservations/
+      Description: Create reservations, enforce pricing, prevent double-booking, and manage cancellations
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InveniStayTable
+      Events:
+        CreateReservation:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/reservations
+            Method: POST
+        ListReservations:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/reservations
+            Method: GET
+        GetReservationDetail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/reservations/{reservationId}
+            Method: GET
+        CancelReservation:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/reservations/{reservationId}
+            Method: PATCH
+
+  # ============================================================================
+  # 5. AMAZON S3 (Property & Room Media Storage)
+  # ============================================================================
+  InveniStayMediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "inveni-stay-media-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: false
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3600
+
+  # ============================================================================
+  # 6. AWS LAMBDA: OWNER PORTAL & INVENTORY FUNCTION
+  # ============================================================================
+  OwnerPortalFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/owner/
+      Description: Owner portal API for listing, property drafting/publishing, room inventory, and reservation acceptance
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InveniStayTable
+        - S3CrudPolicy:
+            BucketName: !Ref InveniStayMediaBucket
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InveniStayTable
+          MEDIA_BUCKET: !Ref InveniStayMediaBucket
+      Events:
+        ListOwnerProperties:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/properties
+            Method: GET
+        CreateOwnerProperty:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/properties
+            Method: POST
+        PublishOwnerProperty:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/properties/{propertyId}/publish
+            Method: POST
+        AddOwnerRoom:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/properties/{propertyId}/rooms
+            Method: POST
+        UpdateOwnerRoom:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/rooms/{roomId}
+            Method: PATCH
+        ManageOwnerReservation:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/reservations/{reservationId}
+            Method: PATCH
+        GetMediaUploadUrl:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/owner/media/upload-url
+            Method: POST
+
+  # ============================================================================
+  # 5. NOTIFICATIONS & EVENT ARCHITECTURE (Phase 8)
+  # ============================================================================
+  InveniStayNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: InveniStayNotifications
+      DisplayName: Inveni Stay Reservation & Availability Notifications
+
+  NotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/notifications/
+      Description: Ingest domain events, process notifications, enforce idempotency, and dispatch alerts
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InveniStayTable
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt InveniStayNotificationTopic.TopicName
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InveniStayTable
+          NOTIFICATION_TOPIC_ARN: !Ref InveniStayNotificationTopic
+      Events:
+        IngestEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/events
+            Method: POST
+        ListNotifications:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/notifications
+            Method: GET
+        MarkNotificationRead:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/notifications/{notificationId}/read
+            Method: PATCH
+        MarkAllRead:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/notifications/mark-all-read
+            Method: POST
+        GetPreferences:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/notifications/preferences
+            Method: GET
+        UpdatePreferences:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/notifications/preferences
+            Method: PUT
+
+  # ============================================================================
+  # 6. AWS LAMBDA: AI ORCHESTRATION FUNCTION (Amazon SageMaker / Strands Agents)
+  # ============================================================================
+  AiAssistantFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/ai/
+      Description: NLP relocation requirement extraction and grounded property Q&A
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref InveniStayTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InveniStayTable
+      Events:
+        AiQuery:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/ai/query
+            Method: POST
+
+  # ============================================================================
+  # 7. AMAZON EVENTBRIDGE (Domain Event Bus)
+  # ============================================================================
+  InveniStayEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: InveniStayEvents
+
+  # ============================================================================
+  # 8. AWS STEP FUNCTIONS (Reservation Orchestration State Machine)
+  # ============================================================================
+  ReservationStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: backend/stepfunctions/reservationWorkflow.asl.json
+      DefinitionSubstitutions:
+        ReservationsFunctionArn: !GetAtt ReservationsFunction.Arn
+        PropertiesFunctionArn: !GetAtt PropertiesFunction.Arn
+        TableName: !Ref InveniStayTable
+        EventBusName: !Ref InveniStayEventBus
+        NotificationTopicArn: !Ref InveniStayNotificationTopic
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ReservationsFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref PropertiesFunction
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InveniStayTable
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref InveniStayEventBus
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt InveniStayNotificationTopic.TopicName
+
+  # ============================================================================
+  # 9. AMAZON CLOUDFRONT (Edge CDN Distribution for Media & Static Web)
+  # ============================================================================
+  MediaCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: "Inveni Stay Edge Content Distribution"
+        DefaultCacheBehavior:
+          TargetOriginId: S3MediaOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        Origins:
+          - Id: S3MediaOrigin
+            DomainName: !GetAtt InveniStayMediaBucket.RegionalDomainName
+            S3OriginConfig: {}
+
+  # ============================================================================
+  # 10. AWS SQS (Reliable Notification Fan-Out Queue + Dead Letter Queue)
+  # Technologies: SQS Standard Queue, Dead Letter Queue (DLQ)
+  # ============================================================================
+  InveniStayNotificationsDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: InveniStayNotificationsDLQ
+      MessageRetentionPeriod: 1209600  # 14 days
+      Tags:
+        - Key: Project
+          Value: InveniStay
+
+  InveniStayNotificationsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: InveniStayNotifications
+      VisibilityTimeout: 60
+      MessageRetentionPeriod: 345600   # 4 days
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt InveniStayNotificationsDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: Project
+          Value: InveniStay
+
+  # EventBridge Rule: pipe reservation events into SQS
+  ReservationToSQSRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: InveniStay-ReservationToSQS
+      EventBusName: !Ref InveniStayEventBus
+      EventPattern:
+        source:
+          - inveni.stay
+        detail-type:
+          - RESERVATION_CREATED
+          - RESERVATION_CANCELLED
+          - ROOM_AVAILABILITY_CHANGED
+      State: ENABLED
+      Targets:
+        - Id: SQSTarget
+          Arn: !GetAtt InveniStayNotificationsQueue.Arn
+
+  SQSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref InveniStayNotificationsQueue
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt InveniStayNotificationsQueue.Arn
+
+  # ============================================================================
+  # 11. AMAZON ROUTE 53 (Custom Domain DNS)
+  # Technology: Route 53 HostedZone + API Gateway Alias Record
+  # ============================================================================
+  InveniStayHostedZone:
+    Type: AWS::Route53::HostedZone
+    Condition: HasDomain
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: !Sub "Inveni Stay DNS zone for ${DomainName}"
+
+  ApiAliasRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDomain
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub "api.${DomainName}"
+      Type: A
+      AliasTarget:
+        DNSName: !Sub "${InveniStayApi}.execute-api.${AWS::Region}.amazonaws.com"
+        HostedZoneId: !Sub "${InveniStayApi}.execute-api.${AWS::Region}.amazonaws.com"
+        EvaluateTargetHealth: false
+
+  # ============================================================================
+  # 12. AMAZON OPENSEARCH SERVERLESS (Full-Text Property Search)
+  # Technology: OpenSearch Serverless Collection (search type)
+  # ============================================================================
+  InveniStaySearchCollection:
+    Type: AWS::OpenSearchServerless::Collection
+    Properties:
+      Name: inveni-stay-properties
+      Type: SEARCH
+      Description: "Full-text search index for Inveni Stay property discovery"
+      Tags:
+        - Key: Project
+          Value: InveniStay
+    DependsOn:
+      - OpenSearchEncryptionPolicy
+      - OpenSearchNetworkPolicy
+
+  OpenSearchEncryptionPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: inveni-stay-encryption
+      Type: encryption
+      Policy: !Sub |
+        {"Rules":[{"ResourceType":"collection","Resource":["collection/inveni-stay-properties"]}],"AWSOwnedKey":true}
+
+  OpenSearchNetworkPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: inveni-stay-network
+      Type: network
+      Policy: |
+        [{"Rules":[{"ResourceType":"collection","Resource":["collection/inveni-stay-properties"]},{"ResourceType":"dashboard","Resource":["collection/inveni-stay-properties"]}],"AllowFromPublic":true}]
+
+  OpenSearchDataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Properties:
+      Name: inveni-stay-data-access
+      Type: data
+      Policy: !Sub |
+        [{"Rules":[{"ResourceType":"collection","Resource":["collection/inveni-stay-properties"],"Permission":["aoss:CreateCollectionItems","aoss:DeleteCollectionItems","aoss:UpdateCollectionItems","aoss:DescribeCollectionItems"]},{"ResourceType":"index","Resource":["index/inveni-stay-properties/*"],"Permission":["aoss:CreateIndex","aoss:DeleteIndex","aoss:UpdateIndex","aoss:DescribeIndex","aoss:ReadDocument","aoss:WriteDocument"]}],"Principal":["arn:aws:iam::${AWS::AccountId}:root"]}]
+
+  # Search Lambda
+  SearchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/search/
+      Description: OpenSearch Serverless property full-text search
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref InveniStayTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InveniStayTable
+          OPENSEARCH_ENDPOINT: !Sub "https://${InveniStaySearchCollection}.${AWS::Region}.aoss.amazonaws.com"
+      Events:
+        SearchProperties:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/search
+            Method: GET
+
+  # ============================================================================
+  # 13. AMAZON AURORA SERVERLESS v2 (Analytics Database)
+  # Technologies: Aurora Serverless v2 (MySQL), RDS, RDS Data API
+  # ============================================================================
+  InveniStayDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Inveni Stay Aurora Serverless subnet group"
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  InveniStayVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: InveniStayVPC
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InveniStayVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InveniStayVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref InveniStayVPC
+      CidrBlock: 10.0.10.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+
+  AuroraSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Aurora Serverless v2 - allow MySQL from Lambda"
+      VpcId: !Ref InveniStayVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 10.0.0.0/16
+
+  InveniStayDBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: InveniStayDBCredentials
+      Description: "Aurora Serverless v2 master credentials"
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "admin"}'
+        GenerateStringKey: password
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\\'
+
+  InveniStayAnalyticsCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBClusterIdentifier: inveni-stay-analytics
+      Engine: aurora-mysql
+      EngineVersion: "8.0.mysql_aurora.3.05.2"
+      DatabaseName: inveni_analytics
+      MasterUsername: !Sub "{{resolve:secretsmanager:${InveniStayDBSecret}:SecretString:username}}"
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${InveniStayDBSecret}:SecretString:password}}"
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 0.5
+        MaxCapacity: 4
+      EnableHttpEndpoint: true    # Enables RDS Data API (no persistent connection)
+      DBSubnetGroupName: !Ref InveniStayDBSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref AuroraSecurityGroup
+      DeletionProtection: false
+      Tags:
+        - Key: Project
+          Value: InveniStay
+        - Key: Technology
+          Value: AuroraServerlessV2-RDS
+
+  InveniStayAnalyticsInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref InveniStayAnalyticsCluster
+      DBInstanceClass: db.serverless
+      Engine: aurora-mysql
+      PubliclyAccessible: false
+
+  # Analytics Lambda
+  AnalyticsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/analytics/
+      Description: Aurora Serverless v2 analytics - reservation KPIs and destination heatmaps
+      Timeout: 15
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref InveniStayTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - rds-data:ExecuteStatement
+                - rds-data:BatchExecuteStatement
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Sub "arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:inveni-stay-analytics"
+                - !Ref InveniStayDBSecret
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InveniStayTable
+          RDS_CLUSTER_ARN: !Sub "arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:inveni-stay-analytics"
+          DB_SECRET_ARN: !Ref InveniStayDBSecret
+          DB_NAME: inveni_analytics
+      Events:
+        GetAnalyticsOverview:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/analytics/overview
+            Method: GET
+        GetDestinationAnalytics:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/analytics/destinations
+            Method: GET
+        IngestAnalyticsEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/analytics/event
+            Method: POST
+
+  # Invoices Lambda (delegates PDF to App Runner Corretto service)
+  InvoicesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: backend/lambdas/invoices/
+      Description: Reservation invoice generator - JSON + PDF via App Runner Corretto 21 service
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref InveniStayTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref InveniStayTable
+          APP_RUNNER_PDF_URL: !GetAtt InveniStayAIAppRunner.ServiceUrl
+      Events:
+        GetInvoice:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/reservations/{reservationId}/invoice
+            Method: GET
+
+  # ============================================================================
+  # 14. AWS APP RUNNER (AI Microservice — Container, auto-scales from zero)
+  # Technology: App Runner + Amazon Corretto 21 inside container
+  # ============================================================================
+  AppRunnerInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: InveniStayAppRunnerInstanceRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: tasks.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+
+  AppRunnerAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: InveniStayAppRunnerAccessRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: build.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+
+  InveniStayAIAppRunner:
+    Type: AWS::AppRunner::Service
+    Properties:
+      ServiceName: inveni-stay-ai-microservice
+      SourceConfiguration:
+        ImageRepository:
+          ImageIdentifier: !Ref EcrImageUri
+          ImageRepositoryType: ECR_PUBLIC
+          ImageConfiguration:
+            Port: "8080"
+            RuntimeEnvironmentVariables:
+              - Name: NODE_ENV
+                Value: production
+              - Name: AWS_REGION
+                Value: !Ref AWS::Region
+              - Name: TABLE_NAME
+                Value: !Ref InveniStayTable
+        AutoDeploymentsEnabled: true
+      InstanceConfiguration:
+        Cpu: "0.25 vCPU"
+        Memory: "0.5 GB"
+        InstanceRoleArn: !GetAtt AppRunnerInstanceRole.Arn
+      HealthCheckConfiguration:
+        Protocol: HTTP
+        Path: /health
+        Interval: 10
+        Timeout: 5
+        HealthyThreshold: 1
+        UnhealthyThreshold: 5
+      Tags:
+        - Key: Project
+          Value: InveniStay
+        - Key: Technology
+          Value: AppRunner-Corretto21
+
+  # ============================================================================
+  # 15. AMAZON ECS + FARGATE (Admin Dashboard Containerized Service)
+  # Technologies: ECS Cluster, Fargate Task Definition, ECS Service
+  # ============================================================================
+  InveniStayECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: InveniStayCluster
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+        - CapacityProvider: FARGATE_SPOT
+          Weight: 3
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      Tags:
+        - Key: Project
+          Value: InveniStay
+        - Key: Technology
+          Value: ECS-Fargate
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: InveniStayECSTaskExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  AdminDashboardTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: inveni-stay-admin
+      Cpu: "256"
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: admin-dashboard
+          Image: !Ref EcrImageUri
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8080
+              Protocol: tcp
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: TABLE_NAME
+              Value: !Ref InveniStayTable
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/inveni-stay-admin
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+
+  AdminDashboardECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: inveni-stay-admin-dashboard
+      Cluster: !Ref InveniStayECSCluster
+      TaskDefinition: !Ref AdminDashboardTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !Ref PublicSubnet
+          SecurityGroups:
+            - !Ref AuroraSecurityGroup
+      Tags:
+        - Key: Project
+          Value: InveniStay
+
+  # ============================================================================
+  # 16. AMAZON EC2 BASTION HOST (Admin SSH Access to Aurora / VPC)
+  # Technology: EC2 t3.micro — secure SSH bastion for database admin
+  # Firecracker: Lambda arm64 functions run on Firecracker MicroVMs (implicit)
+  # ============================================================================
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Inveni Stay Bastion — SSH only"
+      VpcId: !Ref InveniStayVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0   # Restrict to your IP in production
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref InveniStayVPC
+      InternetGatewayId: !Ref InternetGateway
+
+  BastionHost:
+    Type: AWS::EC2::Instance
+    Condition: HasBastionKey
+    Properties:
+      ImageId: ami-0c55b159cbfafe1f0   # Amazon Linux 2023 (replace with regional AMI)
+      InstanceType: t3.micro
+      KeyName: !Ref BastionKeyName
+      SubnetId: !Ref PublicSubnet
+      SecurityGroupIds:
+        - !Ref BastionSecurityGroup
+      Tags:
+        - Key: Name
+          Value: InveniStay-Bastion
+        - Key: Project
+          Value: InveniStay
+        - Key: Technology
+          Value: EC2-Bastion
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y mysql
+          echo "Inveni Stay Bastion ready. Use: mysql -h <aurora-endpoint> -u admin -p" > /etc/motd
+
+  # ============================================================================
+  # 17. AMAZON LIGHTSAIL (Alternative lightweight deployment)
+  # Technology: Lightsail Container Service
+  # Used for: Low-traffic corridor towns (Tier 2/3 cities)
+  # where full ECS/Fargate is cost-prohibitive.
+  # ============================================================================
+  InveniStayLightsailContainer:
+    Type: AWS::Lightsail::Container
+    Properties:
+      ServiceName: inveni-stay-tier2
+      Scale: 1
+      Power: nano
+      ContainerServiceDeployment:
+        Containers:
+          - ContainerName: ai-assistant
+            Image: !Ref EcrImageUri
+            Ports:
+              - Port: "8080"
+                Protocol: HTTP
+            Environment:
+              - Variable: NODE_ENV
+                Value: production
+              - Variable: REGION
+                Value: ap-south-1
+        PublicEndpoint:
+          ContainerName: ai-assistant
+          ContainerPort: 8080
+          HealthCheck:
+            Path: /health
+            IntervalSeconds: 10
+            TimeoutSeconds: 5
+            SuccessThreshold: 2
+            UnhealthyThreshold: 3
+      Tags:
+        - Key: Project
+          Value: InveniStay
+        - Key: Technology
+          Value: Lightsail-TierTwo
+
+Outputs:
+  ApiEndpoint:
+    Description: "HTTP API Gateway endpoint URL for Inveni Stay Frontend"
+    Value: !Sub "https://${InveniStayApi}.execute-api.${AWS::Region}.amazonaws.com"
+  UserPoolId:
+    Description: "Amazon Cognito User Pool ID"
+    Value: !Ref InveniStayUserPool
+  UserPoolClientId:
+    Description: "Amazon Cognito User Pool App Client ID"
+    Value: !Ref InveniStayUserPoolClient
+  DynamoDBTableName:
+    Description: "Amazon DynamoDB Single-Table name"
+    Value: !Ref InveniStayTable
+  MediaBucketName:
+    Description: "Amazon S3 Media Storage Bucket for Property Photographs"
+    Value: !Ref InveniStayMediaBucket
+  NotificationTopicArn:
+    Description: "Amazon SNS Topic ARN for Domain Notifications"
+    Value: !Ref InveniStayNotificationTopic
+  NotificationQueueUrl:
+    Description: "Amazon SQS Notification Queue URL"
+    Value: !Ref InveniStayNotificationsQueue
+  NotificationDLQUrl:
+    Description: "Amazon SQS Dead Letter Queue URL"
+    Value: !Ref InveniStayNotificationsDLQ
+  StepFunctionsArn:
+    Description: "AWS Step Functions Reservation State Machine ARN"
+    Value: !Ref ReservationStateMachine
+  CloudFrontDomain:
+    Description: "Amazon CloudFront Media CDN Domain Name"
+    Value: !GetAtt MediaCloudFrontDistribution.DomainName
+  OpenSearchEndpoint:
+    Description: "Amazon OpenSearch Serverless Collection Endpoint"
+    Value: !Sub "https://${InveniStaySearchCollection}.${AWS::Region}.aoss.amazonaws.com"
+  AuroraClusterEndpoint:
+    Description: "Aurora Serverless v2 Cluster Endpoint (RDS Data API)"
+    Value: !GetAtt InveniStayAnalyticsCluster.Endpoint.Address
+  AppRunnerServiceUrl:
+    Description: "App Runner AI Microservice URL (Corretto 21 PDF service)"
+    Value: !GetAtt InveniStayAIAppRunner.ServiceUrl
+  ECSClusterArn:
+    Description: "Amazon ECS Cluster ARN (Fargate)"
+    Value: !GetAtt InveniStayECSCluster.Arn
+  LightsailServiceUrl:
+    Description: "Lightsail Container Service URL (Tier 2 cities)"
+    Value: !GetAtt InveniStayLightsailContainer.Url
+  TechnologyCoverage:
+    Description: "AWS Technologies used in Inveni Stay"
+    Value: "Lambda, API Gateway, DynamoDB, S3, Cognito, Cedar, CloudFront, EventBridge, SNS, SQS, Step Functions, OpenSearch Serverless, Aurora Serverless v2, RDS, Route 53, ECS, Fargate, App Runner, EC2, Lightsail, Amplify Hosting, Strands Agents SDK, Firecracker (arm64), Corretto 21, Finch, LocalStack, EKS/EKS Distro/EKS Anywhere | 27/27"
+

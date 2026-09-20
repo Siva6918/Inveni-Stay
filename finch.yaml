@@ -1,0 +1,105 @@
+# =============================================================================
+# Inveni Stay — Finch Compose Configuration
+# =============================================================================
+#
+# Technology: Finch (AWS open-source container dev tool)
+# https://github.com/runfinch/finch
+#
+# Usage:
+#   finch compose up           # Start all services
+#   finch compose up ai        # Start only AI microservice
+#   finch build .              # Build the main container
+#   finch compose down         # Stop all services
+#
+# Finch is natively available on macOS and Linux as an AWS-built alternative to Docker Desktop.
+# Uses containerd + nerdctl under the hood. No Docker daemon required.
+# =============================================================================
+
+services:
+  # ── AI Relocation Microservice (Node.js 20 / Firecracker-compatible) ────────
+  ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: inveni-stay-ai:local
+    container_name: inveni_stay_ai
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: development
+      TABLE_NAME: InveniStayData
+      AWS_REGION: ap-south-1
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    depends_on:
+      - localstack
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - inveni-net
+
+  # ── LocalStack (Full AWS Emulation) ─────────────────────────────────────────
+  localstack:
+    image: localstack/localstack:latest
+    container_name: inveni_localstack
+    ports:
+      - "4566:4566"       # LocalStack Gateway (all AWS services)
+      - "4510-4559:4510-4559"  # External service ports
+    environment:
+      SERVICES: s3,dynamodb,sqs,sns,lambda,apigateway,events,cognito-idp,opensearch,rds,stepfunctions
+      DEFAULT_REGION: ap-south-1
+      DEBUG: 0
+      DATA_DIR: /tmp/localstack/data
+      LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT: 30
+      EAGER_SERVICE_LOADING: 1
+    volumes:
+      - localstack-data:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - inveni-net
+
+  # ── OpenSearch Local (for full-text search dev) ──────────────────────────────
+  opensearch:
+    image: opensearchproject/opensearch:2.13.0
+    container_name: inveni_opensearch
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    networks:
+      - inveni-net
+
+  # ── Frontend Dev Server (Vite) ───────────────────────────────────────────────
+  frontend:
+    image: node:20-alpine
+    container_name: inveni_frontend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+      VITE_AWS_REGION: ap-south-1
+    networks:
+      - inveni-net
+
+volumes:
+  localstack-data:
+  opensearch-data:
+
+networks:
+  inveni-net:
+    driver: bridge

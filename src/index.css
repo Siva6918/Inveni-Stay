@@ -1,0 +1,639 @@
+/* ==========================================================================
+   INVENI STAY — CORE DESIGN SYSTEM: LIGHT INTERFACE ONLY
+   Bright, Premium, Clean, Modern & Spacious Property Discovery Platform
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     1. TYPOGRAPHY SYSTEM (INVENI STAY DESIGN SYSTEM)
+     Ratio: 60–70% Manrope, 20–25% Oswald, 5–15% Deliberate Decorative Accents
+     ------------------------------------------------------------------------ */
+  /* 1. PRIMARY FUNCTIONAL UI FONT (60–70% of UI) */
+  --font-ui: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* 2. PRIMARY DISPLAY / HEADING FONT (20–25% of UI) */
+  --font-headline: 'Oswald', sans-serif;
+  --font-display: 'Oswald', sans-serif;
+  --font-metrics: 'Oswald', sans-serif;
+
+  /* 3. SPECIAL DECORATIVE FONT: MISS FAJARDO'S (Hero accent, emotional phrase) */
+  --font-fajardos: 'Miss Fajardose', "Miss Fajardo's", cursive;
+
+  /* 4. ELEGANT ACCENT FONT: NICONNE (Soft decorative moments, storytelling) */
+  --font-niconne: 'Niconne', cursive;
+
+  /* 5. PREMIUM DECORATIVE ACCENT: CROISSANT ONE (Selected premium stay labels) */
+  --font-croissant: 'Croissant One', cursive;
+
+  /* 6. ARTISTIC ACCENT: JIM NIGHTSHADE (Handwritten-style note, exploration labels) */
+  --font-jim-nightshade: 'Jim Nightshade', cursive;
+
+  /* 7. DISPLAY ACCENT: FASCINATE INLINE (Highly limited showcase keyword) */
+  --font-fascinate: 'Fascinate Inline', display, cursive;
+
+  /* Design System Semantic Aliases */
+  --font-script: var(--font-fajardos);
+  --font-accent: var(--font-niconne);
+  --font-editorial: var(--font-croissant);
+  --font-handwritten: var(--font-jim-nightshade);
+  --font-inline: var(--font-fascinate);
+
+  /* ------------------------------------------------------------------------
+     2. SOPHISTICATED LIGHT FOUNDATION + LIGHT GLASSMORPHISM
+     ------------------------------------------------------------------------ */
+  --canvas-bg: #fcfcfd;              /* Bright, airy warm white */
+  --canvas-bg-alt: #f8fafc;          /* Soft light slate tint */
+  --canvas-bg-subtle: #f1f5f9;       /* Light neutral for alternating sections */
+  --canvas-bg-cream: #fefce8;        /* Soft warm cream tint */
+  --canvas-bg-aqua: #f0f9ff;         /* Very light aqua tint */
+  --canvas-bg-mint: #f0fdf4;         /* Very light green tint */
+
+  /* Light Glass Surfaces */
+  --surface-1: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #f1f5f9;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --surface-glass-card: rgba(255, 255, 255, 0.94);
+  --surface-glass-card-hover: #ffffff;
+  --surface-glass-active: rgba(248, 250, 252, 0.98);
+  --surface-white-card: #ffffff;
+
+  /* Light Neumorphism */
+  --surface-neomorph: #f8fafc;
+  --surface-neomorph-inset: #f1f5f9;
+  --surface-neomorph-raised: #ffffff;
+
+  /* WCAG Accessible Light Theme Typography Colors */
+  --text-white-pure: #ffffff;
+  --text-primary: #0f172a;           /* Deep neutral charcoal for maximum clarity */
+  --text-secondary: #475569;         /* Medium slate gray */
+  --text-muted: #64748b;             /* Soft neutral gray */
+  --text-inverse: #ffffff;
+
+  /* Subtle Crisp Light Borders */
+  --border-subtle: rgba(226, 232, 240, 0.8);
+  --border-glass: rgba(255, 255, 255, 0.95);
+  --border-glass-glow: rgba(14, 165, 233, 0.4);
+  --border-medium: rgba(203, 213, 225, 0.85);
+  --border-strong: rgba(148, 163, 184, 0.8);
+  --border-white-crisp: #ffffff;
+  --border-metaverse-hologram: rgba(14, 165, 233, 0.35);
+
+  /* ------------------------------------------------------------------------
+     3. CONTROLLED ACCENT PALETTE (Primarily for highlights, badges & CTAs)
+     ------------------------------------------------------------------------ */
+  --c-white: #ffffff;
+  --c-red: #ef4444;
+  --c-yellow: #eab308;
+  --c-orange: #f97316;
+  --c-pink: #ec4899;
+  --c-sky-blue: #0284c7;
+  --c-aqua: #0ea5e9;
+  --c-green: #10b981;
+  --c-lime: #65a30d;
+  --c-gold: #d97706;
+  --c-goldenrod: #d97706;
+  --c-lawn-green: #16a34a;
+  --c-crimson: #e11d48;
+  --c-oily-accent: #0284c7;
+
+  /* Status Colors */
+  --status-available: #16a34a;
+  --status-available-glow: rgba(22, 163, 74, 0.2);
+  --status-occupied: #ef4444;
+  --status-occupied-glow: rgba(239, 68, 68, 0.2);
+  --status-reserved: #f97316;
+  --status-reserved-glow: rgba(249, 115, 22, 0.2);
+  --status-maintenance: #64748b;
+
+  /* ------------------------------------------------------------------------
+     4. IRIDESCENT & SPECTRAL GRADIENTS (Controlled, Light-Friendly)
+     ------------------------------------------------------------------------ */
+  --grad-iridescent: linear-gradient(
+    135deg,
+    #0284c7 0%,
+    #3b82f6 25%,
+    #8b5cf6 50%,
+    #ec4899 75%,
+    #f59e0b 100%
+  );
+
+  --grad-iridescent-soft: linear-gradient(
+    135deg,
+    rgba(2, 132, 199, 0.08) 0%,
+    rgba(139, 92, 246, 0.08) 40%,
+    rgba(236, 72, 153, 0.06) 75%,
+    rgba(245, 158, 11, 0.08) 100%
+  );
+
+  --grad-metaverse: var(--grad-iridescent);
+  --grad-metaverse-soft: var(--grad-iridescent-soft);
+  --grad-oily-sheen: var(--grad-iridescent);
+  --grad-oil-sheen: radial-gradient(
+    ellipse at 70% 20%,
+    rgba(2, 132, 199, 0.08) 0%,
+    rgba(139, 92, 246, 0.06) 35%,
+    rgba(249, 115, 22, 0.05) 65%,
+    transparent 100%
+  );
+
+  --grad-gold-bronze: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --grad-aqua-glow: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  --grad-emerald-glow: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+  /* ------------------------------------------------------------------------
+     5. SPATIAL DEPTH & LIGHT SHADOWS
+     ------------------------------------------------------------------------ */
+  --shadow-glass: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.03), inset 0 1px 1px #ffffff;
+  --shadow-glass-sm: 0 4px 16px -2px rgba(15, 23, 42, 0.05), inset 0 1px 1px #ffffff;
+  --shadow-glass-lg: 0 20px 48px -8px rgba(15, 23, 42, 0.09), 0 8px 20px rgba(15, 23, 42, 0.04), inset 0 1px 1px #ffffff;
+
+  /* Light Neumorphism Shadows */
+  --shadow-neomorph: 6px 6px 16px #e2e8f0, -6px -6px 16px #ffffff;
+  --shadow-neomorph-sm: 3px 3px 8px #e2e8f0, -3px -3px 8px #ffffff;
+  --shadow-neomorph-lg: 10px 10px 24px #e2e8f0, -10px -10px 24px #ffffff;
+
+  --shadow-neomorph-inset: inset 3px 3px 6px #e2e8f0, inset -3px -3px 6px #ffffff;
+  --shadow-neomorph-inset-sm: inset 2px 2px 4px #e2e8f0, inset -2px -2px 4px #ffffff;
+
+  --shadow-metaverse-glow: 0 8px 30px rgba(2, 132, 199, 0.15), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-metaverse-emerald: 0 8px 30px rgba(16, 185, 129, 0.15), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-metaverse-amber: 0 8px 30px rgba(245, 158, 11, 0.15), 0 4px 12px rgba(15, 23, 42, 0.05);
+
+  --shadow-sm: var(--shadow-glass-sm);
+  --shadow-md: var(--shadow-glass);
+  --shadow-lg: var(--shadow-glass-lg);
+  --shadow-iridescent: var(--shadow-metaverse-glow);
+
+  /* Geometry */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 450ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ------------------------------------------------------------------------
+   6. RESET & GLOBAL STYLES (LIGHT-FIRST)
+   ------------------------------------------------------------------------ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+  font-size: 16px;
+  background-color: var(--canvas-bg);
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  background-color: var(--canvas-bg);
+  background-image: 
+    radial-gradient(circle at 10% 5%, rgba(14, 165, 233, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(245, 158, 11, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.02) 0%, transparent 50%),
+    linear-gradient(180deg, #fcfcfd 0%, #f8fafc 50%, #ffffff 100%);
+  background-attachment: fixed;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+/* Selection */
+::selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: #0369a1;
+}
+
+/* Accessibility: Focus visible */
+:focus-visible {
+  outline: 2px solid var(--c-sky-blue);
+  outline-offset: 3px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ------------------------------------------------------------------------
+   7. FULL-PAGE FLUID CONTAINER & UTILITY CLASSES
+   ------------------------------------------------------------------------ */
+.container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    padding: 0 3rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .container {
+    padding: 0 4rem;
+  }
+}
+
+.section-wrapper {
+  position: relative;
+  padding: 5rem 0;
+}
+
+@media (min-width: 1024px) {
+  .section-wrapper {
+    padding: 6.5rem 0;
+  }
+}
+
+/* ------------------------------------------------------------------------
+   8. LIGHT GLASSMORPHISM & SPATIAL CARD SYSTEM
+   ------------------------------------------------------------------------ */
+.glass-panel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-card-premium,
+.iridescent-card,
+.neomorph-card {
+  position: relative;
+  background: var(--surface-glass-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: var(--shadow-glass);
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.glass-card-premium::before,
+.iridescent-card::before,
+.neomorph-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grad-oil-sheen);
+  pointer-events: none;
+  opacity: 0.35;
+  transition: opacity var(--transition-normal);
+}
+
+.glass-card-premium:hover,
+.iridescent-card:hover,
+.neomorph-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-glass-glow);
+  box-shadow: var(--shadow-glass-lg), 0 12px 28px rgba(14, 165, 233, 0.08);
+}
+
+.glass-card-premium:hover::before,
+.iridescent-card:hover::before,
+.neomorph-card:hover::before {
+  opacity: 0.6;
+}
+
+/* Light Controlled Neumorphic Inset */
+.neomorph-inset {
+  background: var(--surface-neomorph-inset);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neomorph-inset);
+  border: 1px solid rgba(203, 213, 225, 0.4);
+}
+
+/* Light Controlled Neumorphic Tactile Controls */
+.neomorph-btn,
+.btn-tactile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neomorph-sm);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.neomorph-btn:hover,
+.btn-tactile:hover {
+  color: var(--c-sky-blue);
+  background: #ffffff;
+  border-color: var(--c-sky-blue);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.15);
+  transform: translateY(-1px);
+}
+
+.neomorph-btn:active, .neomorph-btn.active,
+.btn-tactile:active, .btn-tactile.active {
+  box-shadow: var(--shadow-neomorph-inset-sm);
+  transform: translateY(1px);
+  border-color: var(--c-sky-blue);
+  color: var(--c-sky-blue);
+}
+
+/* ------------------------------------------------------------------------
+   9. BADGES & SPATIAL HUDS (LIGHT VERSION)
+   ------------------------------------------------------------------------ */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--font-metrics);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.pill-badge--live {
+  background: #ecfdf5;
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+
+.pill-badge--verified {
+  background: #fffbeb;
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.1);
+  color: #b45309;
+}
+
+.pill-badge--aqua {
+  background: #f0f9ff;
+  border-color: rgba(14, 165, 233, 0.4);
+  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.1);
+  color: #0369a1;
+}
+
+.pill-badge--pink {
+  background: #fdf2f8;
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.1);
+  color: #be185d;
+}
+
+.pill-badge--orange {
+  background: #fff7ed;
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.1);
+  color: #c2410c;
+}
+
+.badge-metaverse {
+  font-family: var(--font-metrics);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Spatial HUD Container (Light Edition) */
+.metaverse-hud {
+  font-family: var(--font-metrics);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  background: #ffffff;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.12);
+  color: #0369a1;
+}
+
+/* ------------------------------------------------------------------------
+   10. BUTTONS (LIGHT THEME)
+   ------------------------------------------------------------------------ */
+.btn-iridescent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: var(--grad-iridescent);
+  background-size: 200% 200%;
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.25), 0 2px 6px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btn-iridescent:hover {
+  background-position: right center;
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.35), 0 3px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: var(--c-sky-blue);
+  color: var(--c-sky-blue);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.12);
+  transform: translateY(-1px);
+}
+
+.btn-aqua {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-aqua:hover {
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+  transform: translateY(-1px);
+}
+
+/* ------------------------------------------------------------------------
+   11. ANIMATIONS & MICRO-INTERACTIONS
+   ------------------------------------------------------------------------ */
+@keyframes radar-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+.radar-pulse {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c-lawn-green);
+  animation: radar-pulse 2s infinite;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

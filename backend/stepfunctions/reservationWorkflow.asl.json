@@ -1,0 +1,199 @@
+{
+  "Comment": "Inveni Stay - Reservation State Machine Workflow (AWS Step Functions). Orchestrates user verification, property validation, transactional room locking, DynamoDB reservation creation, EventBridge event emission, and SNS notifications.",
+  "StartAt": "ValidateUser",
+  "States": {
+    "ValidateUser": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${ReservationsFunctionArn}",
+        "Payload": {
+          "action": "VALIDATE_USER",
+          "userId.$": "$.userId",
+          "userEmail.$": "$.userEmail"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "WorkflowFailed"
+        }
+      ],
+      "Next": "ValidatePropertyAndRoom"
+    },
+
+    "ValidatePropertyAndRoom": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${PropertiesFunctionArn}",
+        "Payload": {
+          "action": "VALIDATE_AVAILABILITY",
+          "propertyId.$": "$.propertyId",
+          "roomId.$": "$.roomId",
+          "moveInDate.$": "$.moveInDate"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "WorkflowFailed"
+        }
+      ],
+      "Next": "CheckRoomAvailability"
+    },
+
+    "CheckRoomAvailability": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.isAvailable",
+          "BooleanEquals": true,
+          "Next": "CreateReservationItem"
+        }
+      ],
+      "Default": "RoomAlreadyReserved"
+    },
+
+    "CreateReservationItem": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "${TableName}",
+        "Item": {
+          "PK": {
+            "S.$": "States.Format('RESERVATION#{}', $.reservationId)"
+          },
+          "SK": {
+            "S": "METADATA"
+          },
+          "GSI1PK": {
+            "S.$": "States.Format('USER#{}', $.userId)"
+          },
+          "GSI1SK": {
+            "S.$": "$.createdAt"
+          },
+          "GSI2PK": {
+            "S.$": "States.Format('PROPERTY#{}', $.propertyId)"
+          },
+          "GSI2SK": {
+            "S.$": "States.Format('STATUS#{}', $.status)"
+          },
+          "id": { "S.$": "$.reservationId" },
+          "userId": { "S.$": "$.userId" },
+          "propertyId": { "S.$": "$.propertyId" },
+          "propertyName": { "S.$": "$.propertyName" },
+          "roomNo": { "S.$": "$.roomNo" },
+          "roomType": { "S.$": "$.roomType" },
+          "status": { "S": "REQUESTED" },
+          "moveInDate": { "S.$": "$.moveInDate" },
+          "pricing": {
+            "M": {
+              "monthlyTotal": { "N.$": "States.Format('{}', $.pricing.monthlyTotal)" },
+              "initialTotal": { "N.$": "States.Format('{}', $.pricing.initialTotal)" },
+              "deposit": { "N.$": "States.Format('{}', $.pricing.deposit)" }
+            }
+          },
+          "entityType": { "S": "RESERVATION" }
+        }
+      },
+      "Next": "UpdateRoomStatusToReserved"
+    },
+
+    "UpdateRoomStatusToReserved": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "${TableName}",
+        "Key": {
+          "PK": { "S.$": "States.Format('PROPERTY#{}', $.propertyId)" },
+          "SK": { "S.$": "States.Format('ROOM#{}', $.roomNo)" }
+        },
+        "UpdateExpression": "SET #status = :reserved, GSI1PK = :statusGsi",
+        "ExpressionAttributeNames": {
+          "#status": "status"
+        },
+        "ExpressionAttributeValues": {
+          ":reserved": { "S": "RESERVED" },
+          ":statusGsi": { "S": "STATUS#RESERVED" }
+        }
+      },
+      "Next": "EmitEventBridgeEvent"
+    },
+
+    "EmitEventBridgeEvent": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::events:putEvents",
+      "Parameters": {
+        "Entries": [
+          {
+            "EventBusName": "${EventBusName}",
+            "Source": "invenistay.reservations",
+            "DetailType": "ReservationRequested",
+            "Detail": {
+              "reservationId.$": "$.reservationId",
+              "propertyId.$": "$.propertyId",
+              "userId.$": "$.userId",
+              "roomNo.$": "$.roomNo",
+              "moveInDate.$": "$.moveInDate",
+              "monthlyTotal.$": "$.pricing.monthlyTotal"
+            }
+          }
+        ]
+      },
+      "Next": "SendNotificationAlert"
+    },
+
+    "SendNotificationAlert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "${NotificationTopicArn}",
+        "Subject": "Inveni Stay — New Room Reservation Request",
+        "Message": {
+          "notificationType": "RESERVATION_CONFIRMATION",
+          "reservationId.$": "$.reservationId",
+          "propertyName.$": "$.propertyName",
+          "roomNo.$": "$.roomNo",
+          "moveInDate.$": "$.moveInDate",
+          "amount.$": "$.pricing.initialTotal"
+        }
+      },
+      "Next": "ReservationSuccess"
+    },
+
+    "ReservationSuccess": {
+      "Type": "Succeed"
+    },
+
+    "RoomAlreadyReserved": {
+      "Type": "Fail",
+      "Cause": "The selected room was reserved by another resident just prior to submission.",
+      "Error": "RoomConflictError"
+    },
+
+    "WorkflowFailed": {
+      "Type": "Fail",
+      "Cause": "Reservation workflow failed validation or data persistence.",
+      "Error": "WorkflowExecutionError"
+    }
+  }
+}

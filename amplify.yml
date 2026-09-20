@@ -1,0 +1,30 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "🚀 Inveni Stay — Amplify Hosting Build"
+        - echo "Node version:$(node -v)"
+        - npm ci
+    build:
+      commands:
+        - echo "Building Inveni Stay frontend with Vite..."
+        - npm run build
+        - echo "✅ Build complete. dist/ directory ready for Amplify CDN."
+    postBuild:
+      commands:
+        - echo "Build artifacts in dist/"
+        - ls -la dist/
+  artifacts:
+    # Amplify deploys everything in the baseDirectory to CloudFront CDN
+    baseDirectory: dist
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+
+# Branch-based deploy strategy
+# main    → production (api.invenistay.in)
+# dev     → staging   (staging.invenistay.in)
+# feature → preview   (pr-{number}.invenistay.in)
