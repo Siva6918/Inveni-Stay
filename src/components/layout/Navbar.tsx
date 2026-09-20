@@ -203,6 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
             <span
+              className="navbar-brand-tagline"
               style={{
                 fontFamily: 'var(--font-niconne)',
                 fontSize: '0.92rem',

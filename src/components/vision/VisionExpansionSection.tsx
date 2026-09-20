@@ -68,7 +68,7 @@ export const VisionExpansionSection: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
             gap: '1.5rem',
             maxWidth: '1100px',
             margin: '0 auto',
@@ -79,7 +79,7 @@ export const VisionExpansionSection: React.FC = () => {
               key={tier.title}
               className="iridescent-card"
               style={{
-                padding: '2rem 1.5rem',
+                padding: 'clamp(1.25rem, 3.5vw, 2rem) clamp(1rem, 3vw, 1.5rem)',
                 border: tier.active ? '1.5px solid #22c55e' : '1px solid #e2e8f0',
                 background: tier.active ? '#f0fdf4' : '#ffffff',
                 boxShadow: tier.active ? '0 10px 30px rgba(34, 197, 94, 0.1)' : '0 2px 8px rgba(15, 23, 42, 0.04)',

@@ -7,16 +7,16 @@ export const Footer: React.FC = () => {
       style={{
         background: '#ffffff',
         borderTop: '1px solid #e2e8f0',
-        padding: '4.5rem 0 2.5rem',
+        padding: 'clamp(2.5rem, 6vw, 4.5rem) 0 clamp(1.5rem, 3vw, 2.5rem)',
       }}
     >
       <div className="container">
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '2.5rem',
-            marginBottom: '3.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+            gap: 'clamp(1.5rem, 4vw, 2.5rem)',
+            marginBottom: 'clamp(2rem, 5vw, 3.5rem)',
           }}
         >
           {/* Col 1: Brand & Tagline */}

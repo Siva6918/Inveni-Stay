@@ -147,23 +147,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.65rem',
-              padding: '0.45rem 1.2rem',
+              gap: '0.5rem',
+              padding: '0.45rem 1rem',
               borderRadius: 'var(--radius-full)',
               background: '#ffffff',
               border: '1px solid rgba(14, 165, 233, 0.35)',
               boxShadow: '0 4px 16px rgba(14, 165, 233, 0.12)',
+              maxWidth: '100%',
+              overflow: 'hidden',
             }}
           >
-            <span className="radar-pulse" />
+            <span className="radar-pulse" style={{ flexShrink: 0 }} />
             <span
               style={{
                 fontFamily: 'var(--font-metrics)',
-                fontSize: '0.8rem',
+                fontSize: 'clamp(0.65rem, 2.2vw, 0.8rem)',
                 color: '#0284c7',
-                letterSpacing: '0.08em',
+                letterSpacing: '0.04em',
                 textTransform: 'uppercase',
                 fontWeight: 800,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               SPATIAL RELOCATION PLATFORM • EXPLORE BEFORE YOU ARRIVE
@@ -654,9 +659,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <InteractiveIntroHeroCard />
             </div>
 
-            {/* Floating Property Preview Card 1 (Top Left Layer) */}
+            {/* Floating Property Preview Card 1 (Top Left Layer) — hidden on mobile to avoid overflow */}
             <div
-              className="glass-card-premium"
+              className="glass-card-premium hero-float-card"
               style={{
                 position: 'absolute',
                 top: '-20px',
@@ -706,9 +711,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* Floating Property Preview Card 2 (Bottom Right Layer) */}
+            {/* Floating Property Preview Card 2 (Bottom Right Layer) — hidden on mobile to avoid overflow */}
             <div
-              className="glass-card-premium"
+              className="glass-card-premium hero-float-card"
               style={{
                 position: 'absolute',
                 bottom: '-25px',
@@ -764,8 +769,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '1.25rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
+            gap: '1rem',
             maxWidth: '1100px',
             margin: '0 auto',
           }}

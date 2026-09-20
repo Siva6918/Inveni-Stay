@@ -6,7 +6,7 @@ export const ProblemStorySection: React.FC = () => {
     <section id="story" className="section-wrapper" style={{ background: 'var(--canvas-bg-alt)' }}>
       <div className="container">
         {/* Section Header */}
-        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 4rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto clamp(2rem, 5vw, 4rem)' }}>
           <div className="pill-badge pill-badge--aqua" style={{ marginBottom: '1rem' }}>
             <span>The Relocation Dilemma</span>
           </div>

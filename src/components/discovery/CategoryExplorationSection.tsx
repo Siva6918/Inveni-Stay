@@ -173,7 +173,7 @@ export const CategoryExplorationSection: React.FC<CategoryExplorationSectionProp
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
             gap: '1.25rem',
             marginBottom: '2rem',
           }}
@@ -356,7 +356,7 @@ export const CategoryExplorationSection: React.FC<CategoryExplorationSectionProp
               borderRadius: '16px',
               border: '1px solid #e2e8f0',
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
               gap: '1rem',
               animation: 'fadeInDown 0.2s ease-out',
             }}

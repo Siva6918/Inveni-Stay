@@ -66,7 +66,7 @@ export const FeaturedDestinationsSection: React.FC<FeaturedDestinationsSectionPr
     <section className="section-wrapper" style={{ background: 'var(--canvas-bg-alt)', position: 'relative' }}>
       <div className="container">
         {/* Section Header */}
-        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto clamp(2rem, 5vw, 3.5rem)' }}>
           <div
             className="metaverse-hud"
             style={{
@@ -97,7 +97,7 @@ export const FeaturedDestinationsSection: React.FC<FeaturedDestinationsSectionPr
             <span
               style={{
                 fontFamily: 'var(--font-niconne)',
-                fontSize: '1.5rem',
+                fontSize: 'clamp(1.15rem, 3vw, 1.5rem)',
                 color: '#0284c7',
                 letterSpacing: '0.02em',
               }}
@@ -115,7 +115,7 @@ export const FeaturedDestinationsSection: React.FC<FeaturedDestinationsSectionPr
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
             gap: '1.5rem',
           }}
         >

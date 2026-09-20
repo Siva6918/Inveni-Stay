@@ -123,7 +123,7 @@ export const RelocationSearchInput: React.FC<RelocationSearchInputProps> = ({ on
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
             gap: '1.25rem',
             marginBottom: '1.5rem',
           }}
@@ -228,7 +228,7 @@ export const RelocationSearchInput: React.FC<RelocationSearchInputProps> = ({ on
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
             gap: '1rem',
             paddingTop: '1.25rem',
             borderTop: '1px solid var(--border-subtle)',

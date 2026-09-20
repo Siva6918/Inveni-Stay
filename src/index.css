@@ -691,6 +691,41 @@ html, body, #root {
   }
 }
 
+/* Hide navbar brand tagline on very small screens */
+@media (max-width: 380px) {
+  .navbar-brand-tagline {
+    display: none !important;
+  }
+}
+
+/* Hero: hide absolutely-positioned floating cards on mobile (negative
+   offsets cause horizontal overflow on narrow viewports) */
+@media (max-width: 768px) {
+  .hero-float-card {
+    display: none !important;
+  }
+}
+
+/* Extra small screen section padding squeeze */
+@media (max-width: 360px) {
+  .section-wrapper {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* Satellite footer meta: full-width column on mobile */
+@media (max-width: 640px) {
+  .satellite-footer-meta {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
 /* Video & Spatial Flythrough Section */
 .video-context-overlay-desktop {
   display: block;

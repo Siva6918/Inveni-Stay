@@ -48,7 +48,7 @@ export const CorridorMapVisual: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
               gap: '1.5rem',
               marginBottom: '2rem',
               borderBottom: '1px solid var(--border-subtle)',
@@ -216,7 +216,7 @@ export const CorridorMapVisual: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
               gap: '1rem',
               marginTop: '1.5rem',
             }}
