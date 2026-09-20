@@ -56,7 +56,7 @@ export const PropertyPreviewSection: React.FC<PropertyPreviewProps> = ({ onInspe
           style={{
             maxWidth: '1040px',
             margin: '0 auto',
-            padding: '2rem',
+            padding: 'clamp(1rem, 3.5vw, 2rem)',
             border: '1px solid rgba(218, 165, 32, 0.35)',
             boxShadow: 'var(--shadow-lg)',
           }}
@@ -64,8 +64,8 @@ export const PropertyPreviewSection: React.FC<PropertyPreviewProps> = ({ onInspe
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '2.5rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              gap: 'clamp(1.5rem, 3.5vw, 2.5rem)',
               alignItems: 'center',
             }}
           >

@@ -96,8 +96,8 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(1.25rem, 3vw, 2rem)',
             maxWidth: '1100px',
             margin: '0 auto',
           }}
@@ -106,7 +106,7 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
           <div
             className="iridescent-card"
             style={{
-              padding: '1.75rem',
+              padding: 'clamp(1rem, 3vw, 1.75rem)',
               border: '1px solid var(--border-medium)',
             }}
           >
@@ -324,7 +324,7 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
           <div
             className="iridescent-card"
             style={{
-              padding: '2rem',
+              padding: 'clamp(1rem, 3vw, 2rem)',
               border: '1px solid var(--border-medium)',
               display: 'flex',
               flexDirection: 'column',

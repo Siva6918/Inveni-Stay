@@ -265,7 +265,13 @@ img, video {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 1.25rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 480px) {
+  .container {
+    padding: 0 1.25rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -288,14 +294,21 @@ img, video {
 
 .section-wrapper {
   position: relative;
-  padding: 5rem 0;
+  padding: 2.75rem 0;
+}
+
+@media (min-width: 768px) {
+  .section-wrapper {
+    padding: 4.5rem 0;
+  }
 }
 
 @media (min-width: 1024px) {
   .section-wrapper {
-    padding: 6.5rem 0;
+    padding: 6rem 0;
   }
 }
+
 
 /* ------------------------------------------------------------------------
    8. LIGHT GLASSMORPHISM & SPATIAL CARD SYSTEM
@@ -637,3 +650,129 @@ img, video {
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------------
+   12. MOBILE FIRST & COMPREHENSIVE RESPONSIVE SYSTEM
+   ------------------------------------------------------------------------ */
+
+/* Global horizontal overflow prevention */
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Navbar Breakpoints */
+.navbar-center-links {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  .navbar-center-links {
+    display: flex !important;
+  }
+}
+
+.navbar-mobile-toggle {
+  display: flex !important;
+}
+
+@media (min-width: 1024px) {
+  .navbar-mobile-toggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-owner-text {
+    display: none;
+  }
+  .navbar-my-stays-text {
+    display: none;
+  }
+}
+
+/* Video & Spatial Flythrough Section */
+.video-context-overlay-desktop {
+  display: block;
+}
+
+.video-context-card-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .video-context-overlay-desktop {
+    display: none !important;
+  }
+  .video-context-card-mobile {
+    display: block !important;
+  }
+}
+
+.video-milestones-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.video-milestones-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Satellite Map HUD & Meta */
+@media (max-width: 640px) {
+  .map-telemetry-coords {
+    display: none !important;
+  }
+}
+
+.satellite-city-tabs {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.satellite-city-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive Cards & Glass Panels on Small Screens */
+@media (max-width: 640px) {
+  .iridescent-card,
+  .glass-panel,
+  .neomorph-card {
+    padding: 1.15rem !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-aqua {
+    padding: 0.65rem 1.15rem !important;
+    font-size: 0.88rem !important;
+  }
+}
+
+/* Responsive Editorial & Headline Typography on Mobile */
+@media (max-width: 640px) {
+  h1, .h1 {
+    font-size: clamp(2rem, 7vw, 2.75rem) !important;
+    line-height: 1.15 !important;
+  }
+
+  h2, .h2 {
+    font-size: clamp(1.65rem, 5.5vw, 2.2rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  h3, .h3 {
+    font-size: clamp(1.25rem, 4.5vw, 1.6rem) !important;
+    line-height: 1.25 !important;
+  }
+}
+
+/* Mobile Touch Tap Targets */
+@media (pointer: coarse) {
+  button, a {
+    touch-action: manipulation;
+  }
+}
+

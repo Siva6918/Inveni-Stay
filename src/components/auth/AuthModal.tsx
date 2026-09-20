@@ -139,10 +139,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         style={{
           width: '100%',
           maxWidth: '500px',
+          maxHeight: 'min(92vh, 720px)',
+          overflowY: 'auto',
           backgroundColor: '#ffffff',
           borderRadius: '20px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          overflow: 'hidden',
           animation: 'fadeInDown 0.2s ease-out',
         }}
         onClick={(e) => e.stopPropagation()}

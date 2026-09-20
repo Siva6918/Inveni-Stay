@@ -175,10 +175,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-            gap: '3rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+            gap: 'clamp(1.5rem, 4vw, 3rem)',
             alignItems: 'center',
-            marginBottom: '3rem',
+            marginBottom: 'clamp(1.5rem, 4vw, 3rem)',
           }}
         >
           {/* Left Column: Core Message & Glass Dual-Search Portal */}
@@ -254,7 +254,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <div
               className="glass-panel"
               style={{
-                padding: '1.75rem',
+                padding: 'clamp(1.15rem, 3vw, 1.75rem)',
                 borderRadius: 'var(--radius-xl)',
                 background: 'rgba(255, 255, 255, 0.92)',
                 border: '1.5px solid rgba(14, 165, 233, 0.35)',

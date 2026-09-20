@@ -33,8 +33,8 @@ export const ProblemStorySection: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(1.25rem, 3vw, 2rem)',
             alignItems: 'stretch',
           }}
         >
@@ -42,7 +42,7 @@ export const ProblemStorySection: React.FC = () => {
           <div
             className="iridescent-card"
             style={{
-              padding: '2.25rem',
+              padding: 'clamp(1.25rem, 3.5vw, 2.25rem)',
               background: '#fff5f5',
               border: '1.5px solid #fecaca',
               borderRadius: 'var(--radius-xl)',
@@ -127,7 +127,7 @@ export const ProblemStorySection: React.FC = () => {
           <div
             className="iridescent-card"
             style={{
-              padding: '2.25rem',
+              padding: 'clamp(1.25rem, 3.5vw, 2.25rem)',
               background: '#ffffff',
               border: '1.5px solid #86efac',
               borderRadius: 'var(--radius-xl)',

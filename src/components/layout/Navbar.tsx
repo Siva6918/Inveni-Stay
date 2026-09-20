@@ -223,7 +223,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             =================================================================== */}
         <nav
           style={{
-            display: 'none',
             alignItems: 'center',
             gap: '1.75rem',
           }}
@@ -639,7 +638,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="navbar-mobile-toggle"
             aria-label="Toggle navigation menu"
             style={{
-              display: 'none',
               alignItems: 'center',
               justifyContent: 'center',
               width: '40px',

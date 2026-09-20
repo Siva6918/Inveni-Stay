@@ -105,8 +105,8 @@ export const InteractiveVideoSection: React.FC = () => {
     <section id="interactive-preview" className="section-wrapper" style={{ background: 'var(--canvas-bg)' }}>
       <div className="container">
         {/* Header */}
-        <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 3.5rem' }}>
-          <div className="pill-badge pill-badge--aqua" style={{ marginBottom: '1rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto clamp(1.5rem, 3.5vw, 2.75rem)' }}>
+          <div className="pill-badge pill-badge--aqua" style={{ marginBottom: '0.75rem' }}>
             <Eye size={14} />
             <span>Interactive Spatial Inspection</span>
           </div>
@@ -114,18 +114,18 @@ export const InteractiveVideoSection: React.FC = () => {
           <h2
             style={{
               fontFamily: 'var(--font-editorial)',
-              fontSize: 'clamp(2rem, 3.8vw, 3rem)',
+              fontSize: 'clamp(1.85rem, 4vw, 2.85rem)',
               color: 'var(--text-primary)',
-              marginBottom: '1rem',
+              marginBottom: '0.75rem',
               lineHeight: 1.2,
             }}
           >
             See It Before You Stay.
           </h2>
 
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.6 }}>
-            Distance shouldn't stop you from knowing exactly where you will live.
-            Scrub through our real-world spatial flythrough from regional satellite view down into Room 101.
+          <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.92rem, 2vw, 1.05rem)', lineHeight: 1.55 }}>
+            Distance shouldn't stop you from knowing where you live.
+            Scrub through our real-world spatial flythrough from regional satellite radar down into Room 101.
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export const InteractiveVideoSection: React.FC = () => {
           style={{
             maxWidth: '1040px',
             margin: '0 auto',
-            padding: '1.25rem',
+            padding: 'clamp(0.85rem, 2vw, 1.25rem)',
             background: '#ffffff',
             border: '1px solid #e2e8f0',
             boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.08)',
@@ -143,13 +143,15 @@ export const InteractiveVideoSection: React.FC = () => {
         >
           {/* Milestone Quick-Jump Navigation Tabs */}
           <div
+            className="video-milestones-bar"
             style={{
               display: 'flex',
               overflowX: 'auto',
-              gap: '0.65rem',
-              paddingBottom: '1rem',
-              marginBottom: '1rem',
+              gap: '0.45rem',
+              paddingBottom: '0.65rem',
+              marginBottom: '0.75rem',
               borderBottom: '1px solid var(--border-subtle)',
+              WebkitOverflowScrolling: 'touch',
             }}
           >
             {milestones.map((m, idx) => (
@@ -159,24 +161,25 @@ export const InteractiveVideoSection: React.FC = () => {
                 onClick={() => handleSeek(m.time, idx)}
                 style={{
                   flex: '0 0 auto',
-                  padding: '0.5rem 0.95rem',
+                  padding: '0.4rem 0.8rem',
                   borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.8rem',
+                  fontSize: '0.75rem',
                   fontFamily: 'var(--font-metrics)',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
+                  letterSpacing: '0.05em',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.45rem',
+                  gap: '0.35rem',
                   background: activeMilestone === idx ? '#e0f2fe' : 'var(--surface-1)',
                   color: activeMilestone === idx ? '#0284c7' : 'var(--text-secondary)',
                   border: activeMilestone === idx ? '1px solid #0284c7' : '1px solid var(--border-subtle)',
                   cursor: 'pointer',
                   transition: 'all var(--transition-fast)',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <span>{m.badge}</span>
+                <span style={{ fontWeight: 800 }}>{m.badge.split(' • ')[0]}</span>
                 <span>•</span>
                 <span>{m.label}</span>
               </button>
@@ -189,7 +192,7 @@ export const InteractiveVideoSection: React.FC = () => {
               position: 'relative',
               borderRadius: 'var(--radius-md)',
               overflow: 'hidden',
-              backgroundColor: '#f1f5f9',
+              backgroundColor: '#0f172a',
               aspectRatio: '16 / 9',
               display: 'flex',
               alignItems: 'center',
@@ -214,16 +217,17 @@ export const InteractiveVideoSection: React.FC = () => {
               }}
             />
 
-            {/* In-Video Live Context Overlay (Bottom Left) */}
+            {/* Desktop In-Video Live Context Overlay (Hidden on mobile via CSS to keep video clear) */}
             <div
+              className="video-context-overlay-desktop"
               style={{
                 position: 'absolute',
-                bottom: '4.5rem',
+                bottom: '4.25rem',
                 left: '1.25rem',
-                maxWidth: '480px',
-                padding: '0.85rem 1.15rem',
+                maxWidth: '440px',
+                padding: '0.75rem 1.1rem',
                 borderRadius: 'var(--radius-md)',
-                background: 'rgba(8, 12, 17, 0.9)',
+                background: 'rgba(8, 12, 17, 0.92)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
                 border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -231,15 +235,16 @@ export const InteractiveVideoSection: React.FC = () => {
                 pointerEvents: 'none',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
                 <span className="radar-pulse" />
                 <span
                   style={{
                     fontFamily: 'var(--font-metrics)',
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     color: '#38bdf8',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
+                    fontWeight: 700,
                   }}
                 >
                   {milestones[activeMilestone].badge}
@@ -248,15 +253,15 @@ export const InteractiveVideoSection: React.FC = () => {
               <div
                 style={{
                   fontFamily: 'var(--font-ui)',
-                  fontSize: '0.95rem',
+                  fontSize: '0.92rem',
                   fontWeight: 700,
                   color: '#ffffff',
-                  marginBottom: '0.2rem',
+                  marginBottom: '0.15rem',
                 }}
               >
                 {milestones[activeMilestone].title}
               </div>
-              <p style={{ fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.4, margin: 0 }}>
+              <p style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4, margin: 0 }}>
                 {milestones[activeMilestone].desc}
               </p>
             </div>
@@ -268,8 +273,8 @@ export const InteractiveVideoSection: React.FC = () => {
                 onClick={togglePlay}
                 style={{
                   position: 'absolute',
-                  width: '72px',
-                  height: '72px',
+                  width: 'clamp(56px, 12vw, 72px)',
+                  height: 'clamp(56px, 12vw, 72px)',
                   borderRadius: '50%',
                   background: 'var(--grad-gold-bronze)',
                   border: '2px solid #ffffff',
@@ -283,31 +288,32 @@ export const InteractiveVideoSection: React.FC = () => {
                 }}
                 aria-label="Play spatial walkthrough video"
               >
-                <Play size={30} fill="#070a0e" style={{ marginLeft: '4px' }} />
+                <Play size={26} fill="#070a0e" style={{ marginLeft: '3px' }} />
               </button>
             )}
 
             {/* Bottom Floating Control Bar */}
             <div
+              className="video-control-bar"
               style={{
                 position: 'absolute',
                 bottom: 0,
                 left: 0,
                 right: 0,
-                padding: '0.75rem 1.25rem',
+                padding: '0.55rem 0.85rem',
                 background: 'linear-gradient(180deg, transparent 0%, rgba(8, 12, 17, 0.95) 100%)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem',
+                gap: '0.65rem',
               }}
             >
               <button
                 type="button"
                 onClick={togglePlay}
-                style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}
+                style={{ color: '#ffffff', display: 'flex', alignItems: 'center', minWidth: '28px', minHeight: '28px' }}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
-                {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                {isPlaying ? <Pause size={18} /> : <Play size={18} />}
               </button>
 
               <button
@@ -316,7 +322,7 @@ export const InteractiveVideoSection: React.FC = () => {
                 style={{ color: '#e2e8f0', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
                 aria-label="Replay video"
               >
-                <RotateCcw size={18} />
+                <RotateCcw size={16} />
               </button>
 
               {/* Progress Track */}
@@ -349,8 +355,8 @@ export const InteractiveVideoSection: React.FC = () => {
               </div>
 
               {/* Time Display */}
-              <span style={{ fontFamily: 'var(--font-metrics)', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600 }}>
-                {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
+              <span style={{ fontFamily: 'var(--font-metrics)', fontSize: '0.74rem', color: '#cbd5e1', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                {currentTime.toFixed(1)}s
               </span>
 
               {/* Mute Toggle */}
@@ -360,7 +366,7 @@ export const InteractiveVideoSection: React.FC = () => {
                 style={{ color: '#e2e8f0', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
               >
-                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
               </button>
 
               {/* Fullscreen */}
@@ -370,9 +376,58 @@ export const InteractiveVideoSection: React.FC = () => {
                 style={{ color: '#e2e8f0', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
                 aria-label="Fullscreen"
               >
-                <Maximize size={18} />
+                <Maximize size={16} />
               </button>
             </div>
+          </div>
+
+          {/* Mobile Live Context Card (Rendered below video on mobile so video is 100% visible and unblocked) */}
+          <div
+            className="video-context-card-mobile"
+            style={{
+              marginTop: '0.75rem',
+              padding: '0.75rem 0.95rem',
+              borderRadius: 'var(--radius-md)',
+              background: '#0f172a',
+              color: '#ffffff',
+              border: '1px solid rgba(14, 165, 233, 0.3)',
+              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <span className="radar-pulse" />
+                <span
+                  style={{
+                    fontFamily: 'var(--font-metrics)',
+                    fontSize: '0.72rem',
+                    color: '#38bdf8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    fontWeight: 700,
+                  }}
+                >
+                  {milestones[activeMilestone].badge}
+                </span>
+              </div>
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontFamily: 'var(--font-metrics)' }}>
+                {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
+              </span>
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                color: '#ffffff',
+                marginBottom: '0.15rem',
+              }}
+            >
+              {milestones[activeMilestone].title}
+            </div>
+            <p style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.45, margin: 0 }}>
+              {milestones[activeMilestone].desc}
+            </p>
           </div>
         </div>
       </div>

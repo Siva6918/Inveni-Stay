@@ -76,15 +76,15 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
       <div
         style={{
           position: 'absolute',
-          top: '12px',
-          left: '12px',
-          right: '12px',
+          top: '10px',
+          left: '10px',
+          right: '10px',
           zIndex: 10,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '0.75rem',
+          gap: '0.45rem',
           pointerEvents: 'none',
         }}
       >
@@ -92,39 +92,41 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
         <div
           style={{
             pointerEvents: 'auto',
-            background: 'rgba(255, 255, 255, 0.92)',
+            background: 'rgba(255, 255, 255, 0.94)',
             backdropFilter: 'blur(12px)',
             border: '1px solid rgba(14, 165, 233, 0.3)',
             borderRadius: 'var(--radius-full)',
-            padding: '0.45rem 1rem',
+            padding: '0.32rem 0.75rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.65rem',
+            gap: '0.45rem',
             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
           }}
         >
           <div
             style={{
-              width: '8px',
-              height: '8px',
+              width: '7px',
+              height: '7px',
               borderRadius: '50%',
               background: '#22c55e',
               boxShadow: '0 0 8px rgba(34, 197, 94, 0.7)',
               animation: 'pulse 1.8s infinite',
+              flexShrink: 0,
             }}
           />
           <span
             style={{
-              fontSize: '0.8rem',
+              fontSize: '0.74rem',
               fontWeight: 800,
               color: '#0f172a',
               fontFamily: 'var(--font-metrics)',
+              whiteSpace: 'nowrap',
             }}
           >
-            {viewMode === 'satellite' ? '🛰️ SATELLITE VIEW' : '🚶 STREET PANORAMA'}
+            {viewMode === 'satellite' ? '🛰️ SATELLITE' : '🚶 STREET'}
           </span>
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>•</span>
-          <span style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 700 }}>
+          <span className="map-telemetry-coords" style={{ fontSize: '0.72rem', color: '#64748b' }}>•</span>
+          <span className="map-telemetry-coords" style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 700 }}>
             {coordinates.lat.toFixed(4)}° N, {coordinates.lng.toFixed(4)}° E
           </span>
         </div>
@@ -135,7 +137,8 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
             pointerEvents: 'auto',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '0.35rem',
+            flexWrap: 'nowrap',
           }}
         >
           {allowToggle && (
@@ -144,9 +147,9 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
                 background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(12px)',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.25rem',
+                padding: '0.2rem',
                 display: 'flex',
-                gap: '0.25rem',
+                gap: '0.2rem',
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
                 border: '1px solid #e2e8f0',
               }}
@@ -157,19 +160,20 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
-                  padding: '0.35rem 0.85rem',
+                  gap: '0.28rem',
+                  padding: '0.28rem 0.65rem',
                   borderRadius: 'var(--radius-full)',
                   background: viewMode === 'satellite' ? '#0284c7' : 'transparent',
                   color: viewMode === 'satellite' ? '#ffffff' : '#475569',
                   border: 'none',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <Layers size={13} />
+                <Layers size={12} />
                 <span>Satellite</span>
               </button>
               <button
@@ -178,19 +182,20 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
-                  padding: '0.35rem 0.85rem',
+                  gap: '0.28rem',
+                  padding: '0.28rem 0.65rem',
                   borderRadius: 'var(--radius-full)',
                   background: viewMode === 'street' ? '#0284c7' : 'transparent',
                   color: viewMode === 'street' ? '#ffffff' : '#475569',
                   border: 'none',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <Navigation size={13} />
+                <Navigation size={12} />
                 <span>Street View</span>
               </button>
             </div>
@@ -204,21 +209,22 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
             style={{
               background: 'rgba(255, 255, 255, 0.95)',
               color: '#0f172a',
-              padding: '0.45rem 0.75rem',
+              padding: '0.36rem 0.65rem',
               borderRadius: 'var(--radius-full)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.75rem',
+              gap: '0.3rem',
+              fontSize: '0.72rem',
               fontWeight: 800,
               textDecoration: 'none',
               boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
               border: '1px solid #e2e8f0',
               backdropFilter: 'blur(12px)',
+              whiteSpace: 'nowrap',
             }}
           >
-            <span>Open Maps</span>
-            <ExternalLink size={12} />
+            <span>Maps</span>
+            <ExternalLink size={11} />
           </a>
         </div>
       </div>
@@ -249,28 +255,29 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
           left: 0,
           right: 0,
           background:
-            'linear-gradient(to top, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.85) 70%, transparent 100%)',
+            'linear-gradient(to top, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.88) 70%, transparent 100%)',
           backdropFilter: 'blur(8px)',
-          padding: '0.85rem 1.25rem 0.75rem',
+          padding: '0.55rem 0.85rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
+          gap: '0.5rem',
           borderTop: '1px solid rgba(226, 232, 240, 0.8)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <MapPin size={16} color="#0284c7" />
-          <div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0, flex: 1 }}>
+          <MapPin size={14} color="#0284c7" style={{ flexShrink: 0 }} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {propertyName} • {town}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{address}</div>
+            <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {address}
+            </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
           {/* Zoom buttons */}
           <div style={{ display: 'flex', gap: '0.35rem' }}>
             <button

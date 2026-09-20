@@ -102,7 +102,7 @@ export const AIConceptPreviewSection: React.FC<AIConceptPreviewSectionProps> = (
           style={{
             maxWidth: '1040px',
             margin: '0 auto',
-            padding: '2.25rem',
+            padding: 'clamp(1.15rem, 3.5vw, 2.25rem)',
             background: '#ffffff',
             borderRadius: 'var(--radius-xl)',
             border: '1.5px solid rgba(14, 165, 233, 0.3)',
@@ -140,8 +140,8 @@ export const AIConceptPreviewSection: React.FC<AIConceptPreviewSectionProps> = (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '2rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              gap: 'clamp(1.25rem, 3vw, 2rem)',
               alignItems: 'stretch',
             }}
           >

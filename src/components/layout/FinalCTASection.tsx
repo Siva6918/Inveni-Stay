@@ -14,7 +14,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({ onSearchClick 
           style={{
             maxWidth: '1000px',
             margin: '0 auto',
-            padding: '4rem 2rem',
+            padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem)',
             textAlign: 'center',
             position: 'relative',
             border: '1px solid #cbd5e1',

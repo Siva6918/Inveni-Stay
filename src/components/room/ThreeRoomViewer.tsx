@@ -927,12 +927,13 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
           display: 'flex',
           gap: 6,
           zIndex: 24,
-          pointerEvents: 'none',
           overflowX: 'auto',
           paddingBottom: 4,
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
         }}
       >
-        <div style={{ display: 'flex', gap: 6, pointerEvents: 'auto', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'nowrap', flexShrink: 0 }}>
           {ROOM_HOTSPOTS.map((h) => {
             const isActive = activeHotspot?.id === h.id;
             return (
@@ -955,6 +956,8 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
                   boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06)',
                   backdropFilter: 'blur(8px)',
                   transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 <span>{h.name}</span>
@@ -975,9 +978,9 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
         onWheel={handleWheel}
         style={{
           width: '100%',
-          height: isFullscreen ? '90vh' : '520px',
+          height: isFullscreen ? '90vh' : 'clamp(340px, 50vh, 520px)',
           cursor: isDraggingRef.current ? 'grabbing' : 'grab',
-          touchAction: 'none',
+          touchAction: 'pan-y',
           background: '#f1f5f9',
         }}
       />
