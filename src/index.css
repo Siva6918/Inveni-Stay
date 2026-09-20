@@ -698,11 +698,21 @@ html, body, #root {
   }
 }
 
-/* Hero: hide absolutely-positioned floating cards on mobile (negative
-   offsets cause horizontal overflow on narrow viewports) */
+/* Hero: Responsive offsets for floating preview cards so they stay visible and don't cause overflow */
 @media (max-width: 768px) {
-  .hero-float-card {
-    display: none !important;
+  .hero-preview-float-1 {
+    left: 4px !important;
+    top: -12px !important;
+    max-width: 200px !important;
+    padding: 0.65rem 0.85rem !important;
+    transform: none !important;
+  }
+  .hero-preview-float-2 {
+    right: 4px !important;
+    bottom: -16px !important;
+    max-width: 210px !important;
+    padding: 0.65rem 0.85rem !important;
+    transform: none !important;
   }
 }
 
@@ -811,3 +821,118 @@ html, body, #root {
   }
 }
 
+/* 3D Room Viewer: Clean, streamlined mobile layout so 3D room is never covered by text/cards */
+@media (max-width: 640px) {
+  .three-viewer-top-hud {
+    top: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    gap: 4px !important;
+  }
+  .three-tour-banner-badge {
+    display: none !important;
+  }
+  .three-hud-compass-text {
+    display: none !important;
+  }
+  .three-hud-secondary-btn {
+    display: none !important;
+  }
+  .three-hud-btn-text {
+    display: none !important;
+  }
+  .three-viewer-presets-bar {
+    top: 42px !important;
+    left: 8px !important;
+    right: 8px !important;
+  }
+  /* Hide pin label tooltips by default on mobile so 6 white boxes don't block the room */
+  .three-hotspot-pin-label:not(.is-active) {
+    display: none !important;
+  }
+  .three-hotspot-pin-label.is-active {
+    display: block !important;
+    font-size: 9px !important;
+    padding: 1px 5px !important;
+  }
+  .three-drag-hint {
+    bottom: 8px !important;
+    left: 8px !important;
+    padding: 3px 8px !important;
+    font-size: 9.5px !important;
+  }
+  /* On mobile, make the inspection card a compact bottom dock that doesn't dominate the canvas */
+  .three-viewer-hotspot-card {
+    position: absolute !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    max-width: calc(100% - 16px) !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2) !important;
+  }
+}
+
+/* AI Assistant Dock: on mobile, convert wide floating card to a compact bottom-right FAB */
+@media (max-width: 640px) {
+  .ai-assistant-dock-container {
+    bottom: 16px !important;
+    left: auto !important;
+    right: 16px !important;
+  }
+  .ai-assistant-dock-btn {
+    padding: 0 !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35) !important;
+  }
+  .ai-assistant-dock-text {
+    display: none !important;
+  }
+}
+
+/* Room Floor Plan: on mobile, let the room grid scroll horizontally so cards aren't truncated */
+@media (max-width: 640px) {
+  .room-floor-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    gap: 0.65rem !important;
+    padding-bottom: 0.5rem !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .room-floor-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .room-floor-grid > button {
+    flex: 0 0 auto !important;
+    min-width: 120px !important;
+    width: 120px !important;
+  }
+}
+
+/* Property Exploration: Responsive actions and NLP search button on mobile */
+@media (max-width: 640px) {
+  .property-card-actions {
+    width: 100% !important;
+    display: flex !important;
+    gap: 0.5rem !important;
+  }
+  .property-card-actions > button {
+    flex: 1 1 0 !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    padding: 0.6rem 0.65rem !important;
+  }
+  .search-header-nlp-btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.78rem !important;
+  }
+}

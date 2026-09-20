@@ -168,7 +168,7 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                 <span style={{ fontSize: '0.75rem', color: 'var(--c-lawn-green)' }}>2 Single Units Available</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
+              <div className="room-floor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
                 {floor1Rooms.map((room: RoomUnit) => {
                   const status = getStatusBadge(room.status);
                   const isSelected = selectedRoom.roomNo === room.roomNo;
@@ -256,7 +256,7 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                 <span style={{ fontSize: '0.75rem', color: 'var(--c-lawn-green)' }}>1 Balcony Unit Available</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
+              <div className="room-floor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
                 {floor2Rooms.map((room: RoomUnit) => {
                   const status = getStatusBadge(room.status);
                   const isSelected = selectedRoom.roomNo === room.roomNo;

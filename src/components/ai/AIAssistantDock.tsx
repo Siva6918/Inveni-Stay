@@ -328,9 +328,10 @@ export const AIAssistantDock: React.FC<AIAssistantDockProps> = ({
 
   return (
     <>
-      {/* ── PERSISTENT FLOATING BUTTON (BOTTOM-LEFT) ── */}
+      {/* ── PERSISTENT FLOATING BUTTON (BOTTOM-LEFT on desktop, compact FAB on mobile) ── */}
       {!isOpen && (
         <div
+          className="ai-assistant-dock-container"
           style={{
             position: 'fixed',
             bottom: '24px',
@@ -340,6 +341,7 @@ export const AIAssistantDock: React.FC<AIAssistantDockProps> = ({
         >
           <button
             type="button"
+            className="ai-assistant-dock-btn"
             onClick={() => {
               setIsOpen(true);
               setIsMinimized(false);
@@ -383,6 +385,7 @@ export const AIAssistantDock: React.FC<AIAssistantDockProps> = ({
                 justifyContent: 'center',
                 boxShadow: '0 0 12px rgba(2, 132, 199, 0.4)',
                 position: 'relative',
+                flexShrink: 0,
               }}
             >
               <Sparkles size={16} />
@@ -400,7 +403,7 @@ export const AIAssistantDock: React.FC<AIAssistantDockProps> = ({
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+            <div className="ai-assistant-dock-text" style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
               <span
                 style={{
                   fontSize: '0.86rem',

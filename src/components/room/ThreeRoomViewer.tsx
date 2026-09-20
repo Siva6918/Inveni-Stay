@@ -770,33 +770,35 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
     >
       {/* ── Top Control HUD ── */}
       <div
+        className="three-viewer-top-hud"
         style={{
           position: 'absolute',
-          top: 14,
-          left: 14,
-          right: 14,
+          top: 10,
+          left: 10,
+          right: 10,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           zIndex: 25,
           pointerEvents: 'none',
-          gap: 8,
-          flexWrap: 'wrap',
+          gap: 6,
         }}
       >
         {/* Left Telemetry Badges */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'auto', flexShrink: 1, minWidth: 0 }}>
           <div
+            className="three-tour-banner-badge"
             style={{
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(12px)',
               border: '1px solid #e2e8f0',
               borderRadius: '9999px',
-              padding: '6px 14px',
+              padding: '5px 12px',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 7,
+              gap: 6,
               boxShadow: '0 4px 14px rgba(15, 23, 42, 0.06)',
+              flexShrink: 0,
             }}
           >
             <div
@@ -817,7 +819,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
                 fontFamily: 'var(--font-headline)',
               }}
             >
-              360° SPATIAL ROOM TOUR
+              360° SPATIAL TOUR
             </span>
           </div>
 
@@ -827,31 +829,35 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
               backdropFilter: 'blur(12px)',
               border: '1px solid #e2e8f0',
               borderRadius: '9999px',
-              padding: '6px 12px',
+              padding: '5px 10px',
               fontSize: 11,
               fontWeight: 700,
               color: '#334155',
               boxShadow: '0 4px 14px rgba(15, 23, 42, 0.06)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
-            Room {roomNo} · {roomType} Sharing · ₹{monthlyRent.toLocaleString('en-IN')}/mo
+            Room {roomNo} · ₹{monthlyRent.toLocaleString('en-IN')}/mo
           </div>
         </div>
 
         {/* Right Tools HUD */}
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', pointerEvents: 'auto' }}>
+        <div className="three-viewer-tools-hud" style={{ display: 'flex', gap: 5, alignItems: 'center', pointerEvents: 'auto', flexShrink: 0 }}>
           {/* Compass direction badge */}
           <div
+            className="three-hud-compass-badge"
             title={`Heading: ${currentHeading}° (${getCompassHeadingLabel(currentHeading)})`}
             style={{
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(12px)',
               border: '1px solid #e2e8f0',
               borderRadius: '9999px',
-              padding: '5px 10px',
+              padding: '5px 8px',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 5,
+              gap: 4,
               fontSize: 11,
               fontWeight: 800,
               color: '#0f172a',
@@ -859,7 +865,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
             }}
           >
             <Compass size={13} color="#0284c7" />
-            <span>
+            <span className="three-hud-compass-text">
               {getCompassHeadingLabel(currentHeading)} {currentHeading}°
             </span>
           </div>
@@ -872,13 +878,13 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
             style={hudBtnStyle}
           >
             {isAutoRotating ? <Pause size={13} color="#0284c7" /> : <Play size={13} color="#0284c7" />}
-            <span style={{ fontSize: 11, fontWeight: 700 }}>{isAutoRotating ? 'Auto Tour' : 'Static'}</span>
+            <span className="three-hud-btn-text" style={{ fontSize: 11, fontWeight: 700 }}>{isAutoRotating ? 'Auto' : 'Tour'}</span>
           </button>
 
           {/* Reset View */}
           <button type="button" onClick={handleReset} title="Reset to Eye-Level Overview" style={hudBtnStyle}>
             <RotateCcw size={13} color="#0f172a" />
-            <span style={{ fontSize: 11, fontWeight: 700 }}>Reset</span>
+            <span className="three-hud-btn-text" style={{ fontSize: 11, fontWeight: 700 }}>Reset</span>
           </button>
 
           {/* Zoom Buttons */}
@@ -901,7 +907,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
 
           {/* Floor Plan jump */}
           {onSwitchToFloorPlan && (
-            <button type="button" onClick={onSwitchToFloorPlan} style={hudBtnStyle}>
+            <button type="button" onClick={onSwitchToFloorPlan} className="three-hud-secondary-btn" style={hudBtnStyle}>
               <Layers size={13} color="#0284c7" />
               <span style={{ fontSize: 11, fontWeight: 700 }}>Floor Plan</span>
             </button>
@@ -909,7 +915,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
 
           {/* Photo Gallery jump */}
           {onSwitchToGallery && (
-            <button type="button" onClick={onSwitchToGallery} style={hudBtnStyle}>
+            <button type="button" onClick={onSwitchToGallery} className="three-hud-secondary-btn" style={hudBtnStyle}>
               <Eye size={13} color="#16a34a" />
               <span style={{ fontSize: 11, fontWeight: 700 }}>Photos</span>
             </button>
@@ -919,11 +925,12 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
 
       {/* ── Quick Angle Presets Bar (Pills under Top HUD) ── */}
       <div
+        className="three-viewer-presets-bar"
         style={{
           position: 'absolute',
-          top: 60,
-          left: 14,
-          right: 14,
+          top: 50,
+          left: 10,
+          right: 10,
           display: 'flex',
           gap: 6,
           zIndex: 24,
@@ -946,13 +953,13 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
                   color: isActive ? '#ffffff' : '#334155',
                   border: isActive ? '1px solid #0284c7' : '1px solid #e2e8f0',
                   borderRadius: '9999px',
-                  padding: '4px 11px',
-                  fontSize: 11,
+                  padding: '4px 10px',
+                  fontSize: 10.5,
                   fontWeight: 700,
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 5,
+                  gap: 4,
                   boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06)',
                   backdropFilter: 'blur(8px)',
                   transition: 'all 0.2s ease',
@@ -1036,6 +1043,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
 
             {/* Label Tooltip */}
             <div
+              className={`three-hotspot-pin-label ${isActive ? 'is-active' : ''}`}
               style={{
                 marginTop: 4,
                 background: 'rgba(255, 255, 255, 0.96)',
@@ -1058,6 +1066,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
 
       {/* ── Drag & Zoom Hint Overlay (Bottom Left) ── */}
       <div
+        className="three-drag-hint"
         style={{
           position: 'absolute',
           bottom: 14,
@@ -1084,17 +1093,18 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
       {/* ── Active Inspection Card (Bottom Right Floating) ── */}
       {activeHotspot && (
         <div
+          className="three-viewer-hotspot-card"
           style={{
             position: 'absolute',
             bottom: 14,
             right: 14,
-            maxWidth: '420px',
-            width: 'calc(100% - 28px)',
+            maxWidth: '300px',
+            width: 'calc(50% - 14px)',
             background: 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(16px)',
             border: '1.5px solid #e2e8f0',
             borderRadius: '16px',
-            padding: '14px 18px',
+            padding: '12px 14px',
             boxShadow: '0 12px 36px rgba(15, 23, 42, 0.12)',
             zIndex: 26,
             pointerEvents: 'auto',
@@ -1103,8 +1113,8 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#0284c7' }}>{activeHotspot.title}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#0284c7', lineHeight: 1.3 }}>{activeHotspot.title}</span>
                 <span
                   style={{
                     fontSize: 10,
@@ -1117,16 +1127,35 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 3,
+                    flexShrink: 0,
                   }}
                 >
                   <ShieldCheck size={10} />
                   {activeHotspot.qualityScore}
                 </span>
               </div>
-              <p style={{ fontSize: 11.5, color: '#475569', lineHeight: 1.45, margin: 0 }}>
+              <p style={{ fontSize: 11, color: '#475569', lineHeight: 1.4, margin: 0 }}>
                 {activeHotspot.description}
               </p>
             </div>
+            <button
+              type="button"
+              onClick={() => setActiveHotspot(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#64748b',
+                padding: '2px 4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px',
+              }}
+              aria-label="Close inspection card"
+            >
+              <X size={15} />
+            </button>
           </div>
 
           {/* Key Specs & Hygiene */}
@@ -1135,10 +1164,10 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
               borderRadius: '10px',
-              padding: '8px 12px',
-              marginTop: 8,
-              marginBottom: 8,
-              fontSize: 11,
+              padding: '7px 10px',
+              marginTop: 7,
+              marginBottom: 7,
+              fontSize: 10.5,
             }}
           >
             <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>
@@ -1151,7 +1180,7 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
 
           {/* Action Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10.5, color: '#64748b' }}>
+            <span style={{ fontSize: 10, color: '#64748b' }}>
               Checked by Inveni Field Auditor · 100% Guaranteed
             </span>
             <button
@@ -1162,16 +1191,17 @@ export const ThreeRoomViewer: React.FC<ThreeRoomViewerProps> = ({
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '8px',
-                padding: '5px 12px',
-                fontSize: 11,
+                padding: '5px 10px',
+                fontSize: 10.5,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 4,
+                flexShrink: 0,
               }}
             >
-              <Info size={12} />
+              <Info size={11} />
               <span>Inspect Details</span>
             </button>
           </div>

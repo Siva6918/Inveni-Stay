@@ -57,7 +57,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
           }}
         >
           {/* Left: Back button & Destination Search Bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: '1 1 360px', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: '1 1 min(100%, 280px)', position: 'relative' }}>
             <button
               type="button"
               onClick={onBackToHome}
@@ -212,6 +212,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
             {/* Natural Language Trigger Button */}
             <button
               type="button"
+              className="search-header-nlp-btn"
               onClick={onOpenNLP}
               style={{
                 display: 'inline-flex',

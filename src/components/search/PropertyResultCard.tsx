@@ -41,8 +41,8 @@ export const PropertyResultCard: React.FC<PropertyResultCardProps> = ({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.75rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+          gap: 'clamp(1rem, 2.5vw, 1.75rem)',
           alignItems: 'start',
         }}
       >
@@ -361,7 +361,7 @@ export const PropertyResultCard: React.FC<PropertyResultCardProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div className="property-card-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => onExplore(property)}

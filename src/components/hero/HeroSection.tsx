@@ -659,9 +659,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <InteractiveIntroHeroCard />
             </div>
 
-            {/* Floating Property Preview Card 1 (Top Left Layer) — hidden on mobile to avoid overflow */}
+            {/* Floating Property Preview Card 1 (Top Left Layer) */}
             <div
-              className="glass-card-premium hero-float-card"
+              className="glass-card-premium hero-preview-float-1"
               style={{
                 position: 'absolute',
                 top: '-20px',
@@ -711,9 +711,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* Floating Property Preview Card 2 (Bottom Right Layer) — hidden on mobile to avoid overflow */}
+            {/* Floating Property Preview Card 2 (Bottom Right Layer) */}
             <div
-              className="glass-card-premium hero-float-card"
+              className="glass-card-premium hero-preview-float-2"
               style={{
                 position: 'absolute',
                 bottom: '-25px',
