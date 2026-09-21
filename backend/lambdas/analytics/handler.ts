@@ -56,10 +56,10 @@ async function executeStatement(sql: string, parameters: any[] = []): Promise<an
     const result = await client.send(cmd);
 
     // Convert column metadata + records to plain objects
-    const cols = (result.columnMetadata || []).map((c) => c.name || '');
-    return (result.records || []).map((row) =>
+    const cols = (result.columnMetadata || []).map((c: any) => c.name || '');
+    return (result.records || []).map((row: any) =>
       Object.fromEntries(
-        cols.map((col, i) => {
+        cols.map((col: string, i: number) => {
           const field = row[i];
           const val =
             field?.longValue ??

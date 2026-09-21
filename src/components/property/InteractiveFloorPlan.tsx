@@ -29,6 +29,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
           glow: 'rgba(16, 185, 129, 0.25)',
           dot: '#10b981',
           text: 'AVAILABLE',
+          shortText: 'AVAIL',
         };
       case 'OCCUPIED':
         return {
@@ -38,6 +39,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
           glow: 'transparent',
           dot: '#ef4444',
           text: 'OCCUPIED',
+          shortText: 'OCC',
         };
       case 'RESERVED':
         return {
@@ -47,6 +49,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
           glow: 'transparent',
           dot: '#f97316',
           text: 'RESERVED',
+          shortText: 'RSRV',
         };
       default:
         return {
@@ -56,6 +59,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
           glow: 'transparent',
           dot: '#94a3b8',
           text: 'MAINTENANCE',
+          shortText: 'MAINT',
         };
     }
   };
@@ -225,7 +229,7 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
         style={{
           position: 'relative',
           width: '100%',
-          height: '460px',
+          height: 'clamp(340px, 55vw, 500px)',
           background: 'var(--surface-neomorph-inset)',
           borderRadius: 'var(--radius-lg)',
           border: '2px solid rgba(14, 165, 233, 0.35)',
@@ -316,11 +320,12 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                padding: '0.85rem',
+                padding: 'clamp(0.4rem, 1.5vw, 0.85rem)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 zIndex: isSelected ? 10 : 2,
                 transition: 'all 0.2s ease',
+                overflow: 'hidden',
               }}
               aria-label={`Room ${pos.roomNo}, ${roomUnit?.type} room, ₹${roomUnit?.rent} per month, status ${status}`}
             >
@@ -346,57 +351,64 @@ export const InteractiveFloorPlan: React.FC<InteractiveFloorPlanProps> = ({
                     background: isSelected ? '#0284c7' : badge.bg,
                     color: isSelected ? '#ffffff' : badge.color,
                     border: `1px solid ${isSelected ? '#0284c7' : badge.border}`,
-                    padding: '0.15rem 0.5rem',
+                    padding: '0.12rem 0.35rem',
                     borderRadius: 'var(--radius-pill)',
-                    fontSize: '0.68rem',
+                    fontSize: '0.62rem',
                     fontWeight: 800,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.04em',
+                    letterSpacing: '0.02em',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    maxWidth: '100%',
+                    flexShrink: 1,
                   }}
                 >
-                  {status}
+                  {badge.shortText}
                 </span>
               </div>
 
               {/* Room Body Specs */}
-              <div>
-                <div style={{ color: '#334155', fontSize: '0.8rem', fontWeight: 700 }}>
-                  {roomUnit?.type || 'Single'} Room
-                  {roomUnit?.attachedBath && <span style={{ color: 'var(--c-sky-blue)' }}> • Attached Bath</span>}
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                <div style={{ color: '#334155', fontSize: 'clamp(0.65rem, 1.2vw, 0.8rem)', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {roomUnit?.type || 'Single'}
+                  {roomUnit?.attachedBath && <span style={{ color: 'var(--c-sky-blue)' }}> • Bath</span>}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.15rem', marginTop: '0.15rem', flexWrap: 'nowrap' }}>
                   <span
                     style={{
                       fontFamily: 'var(--font-metrics)',
-                      fontSize: '1.1rem',
+                      fontSize: 'clamp(0.8rem, 1.5vw, 1.1rem)',
                       fontWeight: 800,
                       color: 'var(--c-gold)',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    ₹{roomUnit?.rent?.toLocaleString() || 5500}
+                    ₹{((roomUnit?.rent || 5500) / 1000).toFixed(1)}k
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>/mo</span>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>/mo</span>
                 </div>
               </div>
 
               {/* Selection Indicator */}
               <div
                 style={{
-                  fontSize: '0.72rem',
+                  fontSize: 'clamp(0.6rem, 1vw, 0.72rem)',
                   color: isSelected ? 'var(--c-sky-blue)' : 'var(--text-muted)',
                   fontWeight: isSelected ? 800 : 500,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.3rem',
+                  gap: '0.25rem',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {isSelected ? (
                   <>
-                    <CheckCircle2 size={13} color="var(--c-sky-blue)" />
-                    <span>Selected for inspection</span>
+                    <CheckCircle2 size={11} color="var(--c-sky-blue)" />
+                    <span>Selected</span>
                   </>
                 ) : (
-                  <span>Click to inspect & select</span>
+                  <span>Click to select</span>
                 )}
               </div>
             </button>

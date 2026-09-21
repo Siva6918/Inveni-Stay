@@ -148,27 +148,29 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '0.3rem',
                   marginBottom: '0.85rem',
                 }}
               >
                 <span
                   style={{
                     fontFamily: 'var(--font-metrics)',
-                    fontSize: '0.85rem',
+                    fontSize: 'clamp(0.72rem, 2vw, 0.85rem)',
                     textTransform: 'uppercase',
                     color: 'var(--c-goldenrod)',
                     letterSpacing: '0.06em',
                     fontWeight: 600,
                   }}
                 >
-                  Floor 1 (Ground & Garden Entrance)
+                  Floor 1 — Ground & Garden
                 </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--c-lawn-green)' }}>2 Single Units Available</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--c-lawn-green)', flexShrink: 0 }}>2 Available</span>
               </div>
 
-              <div className="room-floor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
+              <div className="room-floor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 110px), 1fr))', gap: '0.6rem' }}>
                 {floor1Rooms.map((room: RoomUnit) => {
                   const status = getStatusBadge(room.status);
                   const isSelected = selectedRoom.roomNo === room.roomNo;
@@ -179,7 +181,7 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                       type="button"
                       onClick={() => setSelectedRoom(room)}
                       style={{
-                        padding: '0.85rem 0.65rem',
+                        padding: '0.7rem 0.55rem',
                         borderRadius: 'var(--radius-md)',
                         background: isSelected ? '#e0f2fe' : 'var(--surface-1)',
                         border: isSelected ? '2px solid #0284c7' : `1px solid ${status.border}`,
@@ -187,15 +189,20 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                         textAlign: 'left',
                         cursor: 'pointer',
                         transition: 'all var(--transition-fast)',
+                        minWidth: 0,
+                        overflow: 'hidden',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', gap: '0.2rem' }}>
                         <span
                           style={{
                             fontFamily: 'var(--font-metrics)',
-                            fontSize: '1.25rem',
+                            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                             fontWeight: 700,
                             color: 'var(--text-primary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           #{room.roomNo}
@@ -207,20 +214,24 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                             borderRadius: '50%',
                             backgroundColor: status.dot,
                             boxShadow: `0 0 6px ${status.dot}`,
+                            flexShrink: 0,
                           }}
                         />
                       </div>
 
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                        {room.type} Room
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {room.type}
                       </div>
 
                       <div
                         style={{
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           color: status.text,
-                          fontWeight: 600,
+                          fontWeight: 700,
                           textTransform: 'uppercase',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
                         }}
                       >
                         {status.label}
@@ -236,27 +247,29 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '0.3rem',
                   marginBottom: '0.85rem',
                 }}
               >
                 <span
                   style={{
                     fontFamily: 'var(--font-metrics)',
-                    fontSize: '0.85rem',
+                    fontSize: 'clamp(0.72rem, 2vw, 0.85rem)',
                     textTransform: 'uppercase',
                     color: 'var(--text-secondary)',
                     letterSpacing: '0.06em',
                     fontWeight: 600,
                   }}
                 >
-                  Floor 2 (Quiet Study Level)
+                  Floor 2 — Quiet Study Level
                 </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--c-lawn-green)' }}>1 Balcony Unit Available</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--c-lawn-green)', flexShrink: 0 }}>1 Available</span>
               </div>
 
-              <div className="room-floor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
+              <div className="room-floor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 110px), 1fr))', gap: '0.6rem' }}>
                 {floor2Rooms.map((room: RoomUnit) => {
                   const status = getStatusBadge(room.status);
                   const isSelected = selectedRoom.roomNo === room.roomNo;
@@ -267,7 +280,7 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                       type="button"
                       onClick={() => setSelectedRoom(room)}
                       style={{
-                        padding: '0.85rem 0.65rem',
+                        padding: '0.7rem 0.55rem',
                         borderRadius: 'var(--radius-md)',
                         background: isSelected ? '#e0f2fe' : 'var(--surface-1)',
                         border: isSelected ? '2px solid #0284c7' : `1px solid ${status.border}`,
@@ -275,15 +288,20 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                         textAlign: 'left',
                         cursor: 'pointer',
                         transition: 'all var(--transition-fast)',
+                        minWidth: 0,
+                        overflow: 'hidden',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', gap: '0.2rem' }}>
                         <span
                           style={{
                             fontFamily: 'var(--font-metrics)',
-                            fontSize: '1.25rem',
+                            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                             fontWeight: 700,
                             color: 'var(--text-primary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           #{room.roomNo}
@@ -295,20 +313,24 @@ export const RoomAvailabilitySection: React.FC<RoomAvailabilitySectionProps> = (
                             borderRadius: '50%',
                             backgroundColor: status.dot,
                             boxShadow: `0 0 6px ${status.dot}`,
+                            flexShrink: 0,
                           }}
                         />
                       </div>
 
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                        {room.type} Room
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {room.type}
                       </div>
 
                       <div
                         style={{
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           color: status.text,
-                          fontWeight: 600,
+                          fontWeight: 700,
                           textTransform: 'uppercase',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
                         }}
                       >
                         {status.label}

@@ -4,6 +4,8 @@
  * for Amazon DynamoDB Single-Table Design.
  */
 
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, BatchWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { MOCK_PROPERTIES } from '../../src/data/mockProperties';
 
 export interface DynamoDBItem {
@@ -98,4 +100,42 @@ export function generateDynamoDBSeedItems(): DynamoDBItem[] {
   return items;
 }
 
-console.log(`[Seed Generator] Generated ${generateDynamoDBSeedItems().length} DynamoDB Single-Table items.`);
+export async function seedDynamoDBTable(tableName = process.env.TABLE_NAME || 'InveniStayData', region = process.env.AWS_REGION || 'ap-south-1') {
+  const items = generateDynamoDBSeedItems();
+  console.log(`[Seed Generator] Preparing to seed ${items.length} items into table "${tableName}" (${region})...`);
+
+  const client = new DynamoDBClient({ region });
+  const docClient = DynamoDBDocumentClient.from(client, {
+    marshallOptions: { removeUndefinedValues: true },
+  });
+
+  // DynamoDB BatchWriteItem accepts at most 25 items per batch
+  const batchSize = 25;
+  for (let i = 0; i < items.length; i += batchSize) {
+    const chunk = items.slice(i, i + batchSize);
+    const putRequests = chunk.map((item) => ({
+      PutRequest: {
+        Item: item,
+      },
+    }));
+
+    await docClient.send(
+      new BatchWriteCommand({
+        RequestItems: {
+          [tableName]: putRequests,
+        },
+      })
+    );
+    console.log(`[Seed Generator] Wrote batch ${Math.floor(i / batchSize) + 1} (${chunk.length} items)...`);
+  }
+
+  console.log(`[Seed Generator] Successfully seeded all ${items.length} items into "${tableName}"!`);
+}
+
+// Auto-run if executed directly
+if (process.argv[1]?.includes('seedDynamoDB')) {
+  seedDynamoDBTable().catch((err) => {
+    console.error('[Seed Generator] Error seeding DynamoDB:', err);
+    process.exit(1);
+  });
+}

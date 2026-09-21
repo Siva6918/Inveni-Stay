@@ -32,31 +32,28 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   /**
-   * Google Maps Embed URL patterns:
+   * Free Google Maps embed URLs — no API key required.
    *
-   * Satellite aerial view:
+   * Satellite / hybrid aerial:
    *   https://maps.google.com/maps?q=LAT,LNG&t=k&z=ZOOM&output=embed
    *   t=k  → hybrid (satellite + labels)
    *
-   * Google Street View panoramic mode:
-   *   https://www.google.com/maps/embed?pb=…  — but the simpler way is:
+   * Street View panoramic:
    *   https://maps.google.com/maps?layer=c&cbll=LAT,LNG&cbp=12,0,0,0,0&output=embed
-   *   layer=c → Street View layer   cbll=lat,lng → panorama center point
+   *   layer=c → Street View layer
+   *   cbll=lat,lng → panorama center point
    *   cbp=12,yaw,pitch,zoom,tilt
-   *
-   * Note: Google doesn't guarantee panorama availability at all coords;
-   * if no pano exists nearby, it falls back to the regular map.
    */
-  const satelliteEmbedUrl = `https://maps.google.com/maps?q=${coordinates.lat},${coordinates.lng}&t=k&z=${zoomLevel}&output=embed`;
+  const satelliteEmbedUrl =
+    `https://maps.google.com/maps?q=${coordinates.lat},${coordinates.lng}&t=k&z=${zoomLevel}&output=embed`;
 
   const streetViewEmbedUrl =
-    `https://maps.google.com/maps?layer=c&cbll=${coordinates.lat},${coordinates.lng}` +
-    `&cbp=12,0,0,0,0&z=${zoomLevel}&output=embed`;
+    `https://maps.google.com/maps?layer=c&cbll=${coordinates.lat},${coordinates.lng}&cbp=12,0,0,0,0&z=${zoomLevel}&output=embed`;
+
+  const currentEmbedUrl = viewMode === 'satellite' ? satelliteEmbedUrl : streetViewEmbedUrl;
 
   const externalSatelliteUrl = `https://www.google.com/maps/@${coordinates.lat},${coordinates.lng},${zoomLevel}z/data=!3m1!1e3`;
   const externalStreetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${coordinates.lat},${coordinates.lng}`;
-
-  const currentEmbedUrl = viewMode === 'satellite' ? satelliteEmbedUrl : streetViewEmbedUrl;
   const currentExternalUrl = viewMode === 'satellite' ? externalSatelliteUrl : externalStreetViewUrl;
 
   return (
@@ -125,8 +122,8 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
           >
             {viewMode === 'satellite' ? '🛰️ SATELLITE' : '🚶 STREET'}
           </span>
-          <span className="map-telemetry-coords" style={{ fontSize: '0.72rem', color: '#64748b' }}>•</span>
-          <span className="map-telemetry-coords" style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 700 }}>
+          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>•</span>
+          <span style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 700 }}>
             {coordinates.lat.toFixed(4)}° N, {coordinates.lng.toFixed(4)}° E
           </span>
         </div>
@@ -229,7 +226,7 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
         </div>
       </div>
 
-      {/* Embedded Google Maps iframe — satellite or Street View */}
+      {/* Embedded Google Maps iframe — no API key required */}
       <iframe
         key={`${viewMode}-${zoomLevel}-${coordinates.lat}-${coordinates.lng}`}
         title={`${propertyName} ${viewMode === 'satellite' ? 'Satellite View' : 'Street View'}`}
@@ -263,6 +260,8 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
           justifyContent: 'space-between',
           gap: '0.5rem',
           borderTop: '1px solid rgba(226, 232, 240, 0.8)',
+          zIndex: 5,
+          pointerEvents: 'none',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0, flex: 1 }}>
@@ -277,7 +276,7 @@ export const StreetViewSatelliteViewer: React.FC<StreetViewSatelliteViewerProps>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0, pointerEvents: 'auto' }}>
           {/* Zoom buttons */}
           <div style={{ display: 'flex', gap: '0.35rem' }}>
             <button

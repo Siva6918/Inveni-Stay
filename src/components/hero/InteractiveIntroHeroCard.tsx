@@ -166,9 +166,11 @@ export const InteractiveIntroHeroCard: React.FC = () => {
                   background: '#16a34a',
                   boxShadow: '0 0 6px #16a34a',
                   animation: 'pulse 1.6s infinite',
+                  flexShrink: 0,
                 }}
               />
               <span
+                className="hero-card-hud-label"
                 style={{
                   fontSize: '0.72rem',
                   fontFamily: 'var(--font-metrics)',
@@ -245,6 +247,7 @@ export const InteractiveIntroHeroCard: React.FC = () => {
           >
             <div>
               <div
+                className="hero-card-bottom-title"
                 style={{
                   fontSize: '0.88rem',
                   fontWeight: 800,
@@ -258,12 +261,13 @@ export const InteractiveIntroHeroCard: React.FC = () => {
                 <Compass size={15} color="#38bdf8" />
                 <span>Remote Relocation Engine</span>
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>
+              <div className="hero-card-bottom-subtitle" style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>
                 Continuous loop • Move cursor to tilt in 3D
               </div>
             </div>
 
             <div
+              className="hero-card-gyro-badge"
               style={{
                 background: 'rgba(255, 255, 255, 0.25)',
                 backdropFilter: 'blur(8px)',
