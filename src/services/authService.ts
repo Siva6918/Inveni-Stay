@@ -113,6 +113,7 @@ export class AuthService {
             phone: res.data.user.phone_number || res.data.user.phone || '',
             currentLocation: res.data.user.currentLocation || '',
             occupation: res.data.user.occupation || '',
+            role: res.data.user.role || 'renter',
             isDemoUser: false,
             token: res.data.token,
           };
