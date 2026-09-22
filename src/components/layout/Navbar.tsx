@@ -181,8 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 filter: 'drop-shadow(0 2px 6px rgba(2, 132, 199, 0.25))',
               }}
               onError={(e) => {
-                // Fallback to capital filename if needed
-                (e.currentTarget as HTMLImageElement).src = '/Logo.png';
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
               }}
             />
           </div>

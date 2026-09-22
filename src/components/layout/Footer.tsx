@@ -23,7 +23,7 @@ export const Footer: React.FC = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <img
-                src="/Logo.png"
+                src="/logo.png"
                 alt="Inveni Stay Logo"
                 style={{ width: '36px', height: '36px', objectFit: 'contain' }}
               />

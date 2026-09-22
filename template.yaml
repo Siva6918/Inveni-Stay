@@ -50,6 +50,8 @@ Globals:
         TABLE_NAME: !Ref InveniStayTable
         ALLOWED_ORIGIN: '*'
         ENVIRONMENT: !Ref Environment
+        COGNITO_USER_POOL_ID: !Ref InveniStayUserPool
+        COGNITO_CLIENT_ID: !Ref InveniStayUserPoolClient
 
 Resources:
   # ============================================================================
@@ -160,13 +162,46 @@ Resources:
   # ============================================================================
   # 4. AWS LAMBDA FUNCTIONS (Serverless Compute Layer)
   # ============================================================================
-  PropertiesFunction:
+
+  # ── Auth Lambda (Cognito Sign Up / Sign In) ──────────────────────────────────
+  AuthFunction:
     Type: AWS::Serverless::Function
     Properties:
       Role: arn:aws:iam::992382436040:role/InveniStayLambdaExecutionRole
       Handler: handler.handler
-      CodeUri: backend/lambdas/properties/
-      Description: Retrieve properties, rooms, and live room-level vacancies
+      CodeUri: backend/lambdas/auth/
+      Description: Amazon Cognito authentication — user signup and login
+      Events:
+        Signup:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/auth/signup
+            Method: POST
+        Login:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/auth/login
+            Method: POST
+        AuthOptions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/auth/{proxy+}
+            Method: OPTIONS
+        VerifyEmail:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/auth/verify
+            Method: POST
+        ResendCode:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/auth/resend-code
+            Method: POST
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -175,6 +210,18 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - handler.ts
+        External:
+          - '@aws-sdk/client-cognito-identity-provider'
+          - '@aws-sdk/client-dynamodb'
+          - '@aws-sdk/lib-dynamodb'
+
+  PropertiesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: arn:aws:iam::992382436040:role/InveniStayLambdaExecutionRole
+      Handler: handler.handler
+      CodeUri: backend/lambdas/properties/
+      Description: Retrieve properties, rooms, and live room-level vacancies
       Events:
         GetProperties:
           Type: HttpApi
@@ -200,14 +247,6 @@ Resources:
             ApiId: !Ref InveniStayApi
             Path: /api/rooms/{roomId}/availability
             Method: GET
-
-  ReservationsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Role: arn:aws:iam::992382436040:role/InveniStayLambdaExecutionRole
-      Handler: handler.handler
-      CodeUri: backend/lambdas/reservations/
-      Description: Create reservations, enforce pricing, prevent double-booking, and manage cancellations
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -216,6 +255,14 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - handler.ts
+
+  ReservationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: arn:aws:iam::992382436040:role/InveniStayLambdaExecutionRole
+      Handler: handler.handler
+      CodeUri: backend/lambdas/reservations/
+      Description: Create reservations, enforce pricing, prevent double-booking, and manage cancellations
       Events:
         CreateReservation:
           Type: HttpApi
@@ -241,6 +288,14 @@ Resources:
             ApiId: !Ref InveniStayApi
             Path: /api/reservations/{reservationId}
             Method: PATCH
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: false
+        EntryPoints:
+          - handler.ts
 
   # ============================================================================
   # 5. AMAZON S3 (Property & Room Media Storage)
@@ -280,14 +335,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref InveniStayTable
           MEDIA_BUCKET: !Ref InveniStayMediaBucket
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2022
-        Sourcemap: false
-        EntryPoints:
-          - handler.ts
       Events:
         ListOwnerProperties:
           Type: HttpApi
@@ -331,6 +378,14 @@ Resources:
             ApiId: !Ref InveniStayApi
             Path: /api/owner/media/upload-url
             Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: false
+        EntryPoints:
+          - handler.ts
 
   # ============================================================================
   # 5. NOTIFICATIONS & EVENT ARCHITECTURE (Phase 8)
@@ -352,14 +407,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref InveniStayTable
           NOTIFICATION_TOPIC_ARN: !Ref InveniStayNotificationTopic
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2022
-        Sourcemap: false
-        EntryPoints:
-          - handler.ts
       Events:
         IngestEvent:
           Type: HttpApi
@@ -397,6 +444,14 @@ Resources:
             ApiId: !Ref InveniStayApi
             Path: /api/notifications/preferences
             Method: PUT
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: false
+        EntryPoints:
+          - handler.ts
 
   # ============================================================================
   # 6. AWS LAMBDA: AI ORCHESTRATION FUNCTION (Amazon SageMaker / Strands Agents)
@@ -411,6 +466,13 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref InveniStayTable
+      Events:
+        AiQuery:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/ai/query
+            Method: POST
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -419,13 +481,6 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - handler.ts
-      Events:
-        AiQuery:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref InveniStayApi
-            Path: /api/ai/query
-            Method: POST
 
   # ============================================================================
   # 7. AMAZON EVENTBRIDGE (Domain Event Bus)
@@ -566,6 +621,13 @@ Resources:
         Variables:
           TABLE_NAME: !Ref InveniStayTable
           OPENSEARCH_ENDPOINT: ''
+      Events:
+        SearchProperties:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/search
+            Method: GET
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -574,13 +636,6 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - handler.ts
-      Events:
-        SearchProperties:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref InveniStayApi
-            Path: /api/search
-            Method: GET
 
   # Analytics Lambda
   AnalyticsFunction:
@@ -597,14 +652,6 @@ Resources:
           RDS_CLUSTER_ARN: ''
           DB_SECRET_ARN: ''
           DB_NAME: inveni_analytics
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2022
-        Sourcemap: false
-        EntryPoints:
-          - handler.ts
       Events:
         GetAnalyticsOverview:
           Type: HttpApi
@@ -624,6 +671,14 @@ Resources:
             ApiId: !Ref InveniStayApi
             Path: /api/analytics/event
             Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: false
+        EntryPoints:
+          - handler.ts
 
   # Invoices Lambda (delegates PDF to App Runner Corretto service)
   InvoicesFunction:
@@ -637,6 +692,13 @@ Resources:
         Variables:
           TABLE_NAME: !Ref InveniStayTable
           APP_RUNNER_PDF_URL: ''
+      Events:
+        GetInvoice:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InveniStayApi
+            Path: /api/reservations/{reservationId}/invoice
+            Method: GET
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -645,13 +707,6 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - handler.ts
-      Events:
-        GetInvoice:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref InveniStayApi
-            Path: /api/reservations/{reservationId}/invoice
-            Method: GET
 
 Outputs:
   ApiEndpoint:
